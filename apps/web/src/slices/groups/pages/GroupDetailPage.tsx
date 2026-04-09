@@ -22,7 +22,6 @@ export default function GroupDetailPage() {
   const [showInvite, setShowInvite] = useState(false)
 
   const { data: group, isLoading } = useGroup(groupId!)
-  const { user } = useAuth()
 
   if (isLoading) return <PageLoader />
   if (!group) return null

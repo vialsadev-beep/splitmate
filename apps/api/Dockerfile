@@ -27,6 +27,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+RUN apk add --no-cache openssl
 RUN corepack enable && corepack prepare pnpm@9 --activate
 
 # Workspace manifests — pnpm needs these to resolve the workspace

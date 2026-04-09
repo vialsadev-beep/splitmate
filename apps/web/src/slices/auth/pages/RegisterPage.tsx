@@ -41,7 +41,7 @@ export default function RegisterPage() {
           <p className="text-sm text-muted-foreground">{t('auth.tagline')}</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} autoComplete="on" className="space-y-4">
           <div className="space-y-1">
             <label className="text-sm font-medium text-foreground">{t('auth.name')}</label>
             <input

@@ -103,7 +103,7 @@ export default function RegisterPage() {
           </div>
 
           <a
-            href="/api/v1/auth/google"
+            href="https://splitmate-production-9842.up.railway.app/api/v1/auth/google"
             className={cn(
               'flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl',
               'border border-border bg-background',

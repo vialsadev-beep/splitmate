@@ -1,0 +1,14 @@
+# Railway deployment config — https://railway.app
+# Conectar repo → New Service → Deploy from GitHub
+# Variables de entorno requeridas: DATABASE_URL, REDIS_URL, JWT_SECRET, FRONTEND_URL
+
+[build]
+builder = "dockerfile"
+dockerfilePath = "apps/api/Dockerfile"
+
+[deploy]
+startCommand = "./docker-entrypoint.sh"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3

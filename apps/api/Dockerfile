@@ -17,7 +17,7 @@ WORKDIR /app
 COPY packages/shared ./packages/shared
 COPY apps/api ./apps/api
 
-RUN pnpm --filter @splitmate/shared build 2>/dev/null || true
+RUN pnpm --filter @splitmate/shared build
 RUN pnpm --filter @splitmate/api exec prisma generate
 RUN pnpm --filter @splitmate/api build
 

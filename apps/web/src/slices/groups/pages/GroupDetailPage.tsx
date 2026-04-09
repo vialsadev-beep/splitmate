@@ -91,7 +91,7 @@ export default function GroupDetailPage() {
         {activeTab === 'expenses' && <ExpenseListTab groupId={groupId!} currency={group.currency} />}
         {activeTab === 'balance' && <BalanceTab groupId={groupId!} />}
         {activeTab === 'budgets' && <BudgetsTab groupId={groupId!} currency={group.currency} />}
-        {activeTab === 'pot' && <BoteTab groupId={groupId!} groupName={group.name} currency={group.currency} isAdmin={isAdmin} />}
+        {activeTab === 'pot' && <BoteTab groupId={groupId!} currency={group.currency} isAdmin={isAdmin} />}
         {activeTab === 'stats' && <StatsTab groupId={groupId!} />}
         {activeTab === 'activity' && <ActivityFeedTab groupId={groupId!} />}
         {activeTab === 'members' && <MembersTab group={group} />}

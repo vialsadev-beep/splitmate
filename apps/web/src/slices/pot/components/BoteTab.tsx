@@ -17,7 +17,6 @@ import {
 
 interface Props {
   groupId: string
-  groupName: string
   currency: string
   isAdmin: boolean
 }
@@ -113,13 +112,11 @@ function ContributionCard({
 // ─── Modal para ingresar al bote ─────────────────────────────
 function ContributeModal({
   paypalMe,
-  groupName,
   currency,
   onClose,
   groupId,
 }: {
   paypalMe: string
-  groupName: string
   currency: string
   onClose: () => void
   groupId: string
@@ -259,7 +256,7 @@ function ConfigureForm({ groupId, current, onDone }: { groupId: string; current:
 }
 
 // ─── Tab principal ────────────────────────────────────────────
-export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
+export function BoteTab({ groupId, currency, isAdmin }: Props) {
   const { t } = useTranslation()
   const { user } = useAuth()
   const { data: pot, isLoading } = useGroupPot(groupId)
@@ -416,7 +413,6 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
       {showContribute && (
         <ContributeModal
           paypalMe={pot.paypalMe}
-          groupName={groupName}
           currency={currency}
           groupId={groupId}
           onClose={() => setShowContribute(false)}

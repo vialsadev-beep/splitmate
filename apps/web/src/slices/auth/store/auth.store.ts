@@ -30,7 +30,10 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'auth-storage',
       // Solo persistir el user, el accessToken vive en memoria
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
+      partialize: (state) => ({ user: state.user }),
+      onRehydrateStorage: () => (state) => {
+        if (state) state.isAuthenticated = state.user !== null
+      },
     },
   ),
 )

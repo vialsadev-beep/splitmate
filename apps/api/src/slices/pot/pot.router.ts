@@ -11,7 +11,7 @@ export const potRouter = Router({ mergeParams: true })
 potRouter.use(authenticate, requireGroupMember)
 
 const ConfigurePotSchema = z.object({
-  paypalMe: z.string().min(1).max(100).regex(/^[a-zA-Z0-9._-]+$/, 'Usuario de PayPal.me inválido'),
+  paypalMe: z.string().min(1).max(100),
   enabled: z.boolean().optional(),
 })
 

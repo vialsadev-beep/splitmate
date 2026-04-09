@@ -21,9 +21,9 @@ interface Props {
   isAdmin: boolean
 }
 
-// ─── Abrir PayPal.me ─────────────────────────────────────────
-function openPayPal(paypalMe: string, amount: number) {
-  const url = `https://www.paypal.com/paypalme/${paypalMe}/${amount.toFixed(2)}`
+// ─── Abrir PayPal con destinatario y cantidad ─────────────────
+function openPayPal(paypalContact: string, amount: number, currency: string) {
+  const url = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(paypalContact)}&amount=${amount.toFixed(2)}&currency_code=${currency}&item_name=Bote`
   window.open(url, '_blank', 'noopener,noreferrer')
 }
 
@@ -112,12 +112,12 @@ function ContributionCard({
 
 // ─── Modal para ingresar al bote ─────────────────────────────
 function ContributeModal({
-  paypalMe,
+  paypalContact,
   currency,
   onClose,
   groupId,
 }: {
-  paypalMe: string
+  paypalContact: string
   currency: string
   onClose: () => void
   groupId: string
@@ -132,7 +132,7 @@ function ContributeModal({
     const num = parseFloat(amount)
     if (!num || num <= 0) return
     await addContribution.mutateAsync({ amount: num, payerContact: payerContact || undefined, notes: notes || undefined })
-    openPayPal(paypalMe, num)
+    openPayPal(paypalContact, num, currency)
     onClose()
   }
 
@@ -142,7 +142,7 @@ function ContributeModal({
         <div className="p-5 border-b border-border">
           <h3 className="text-base font-semibold text-foreground">{t('pot.contribute')}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {t('pot.contributeDesc', { name: paypalMe })}
+            {t('pot.contributeDesc', { name: paypalContact })}
           </p>
         </div>
         <div className="p-5 space-y-4">
@@ -190,7 +190,7 @@ function ContributeModal({
           <div className="flex items-center gap-2 p-3 rounded-xl bg-[#003087]/10 border border-[#003087]/20">
             <span className="text-lg">🅿️</span>
             <p className="text-xs text-foreground">
-              {t('pot.paypalInfo', { user: paypalMe })}
+              {t('pot.paypalInfo', { user: paypalContact })}
             </p>
           </div>
           <ApiErrorMessage error={addContribution.error} />
@@ -223,11 +223,11 @@ function ContributeModal({
 // ─── Formulario de configuración (solo admin) ─────────────────
 function ConfigureForm({ groupId, current, onDone }: { groupId: string; current: { paypalMe: string } | null; onDone: () => void }) {
   const { t } = useTranslation()
-  const [paypalMe, setPaypalMe] = useState(current?.paypalMe ?? '')
+  const [paypalContact, setPaypalContact] = useState(current?.paypalMe ?? '')
   const configure = useConfigurePot(groupId)
 
   async function handleSave() {
-    await configure.mutateAsync({ paypalMe: paypalMe.trim() })
+    await configure.mutateAsync({ paypalMe: paypalContact.trim() })
     onDone()
   }
 
@@ -238,18 +238,15 @@ function ConfigureForm({ groupId, current, onDone }: { groupId: string; current:
         <h3 className="text-sm font-semibold text-foreground">{t('pot.configure')}</h3>
       </div>
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground">{t('pot.paypalUsername')}</label>
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm text-muted-foreground flex-shrink-0">paypal.me/</span>
-          <input
-            type="text"
-            value={paypalMe}
-            onChange={(e) => setPaypalMe(e.target.value.replace(/[^a-zA-Z0-9._-]/g, ''))}
-            placeholder="tunombre"
-            className="flex-1 px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        </div>
-        <p className="text-[10px] text-muted-foreground">{t('pot.paypalUsernameDesc')}</p>
+        <label className="text-xs font-medium text-foreground">{t('pot.paypalContact')}</label>
+        <input
+          type="text"
+          value={paypalContact}
+          onChange={(e) => setPaypalContact(e.target.value)}
+          placeholder={t('pot.paypalContactPlaceholder')}
+          className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        />
+        <p className="text-[10px] text-muted-foreground">{t('pot.paypalContactDesc')}</p>
       </div>
       <ApiErrorMessage error={configure.error} />
       <div className="flex gap-2">
@@ -258,7 +255,7 @@ function ConfigureForm({ groupId, current, onDone }: { groupId: string; current:
         </button>
         <button
           onClick={handleSave}
-          disabled={!paypalMe.trim() || configure.isPending}
+          disabled={!paypalContact.trim() || configure.isPending}
           className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {configure.isPending ? t('common.loading') : t('common.save')}
@@ -425,7 +422,7 @@ export function BoteTab({ groupId, currency, isAdmin }: Props) {
 
       {showContribute && (
         <ContributeModal
-          paypalMe={pot.paypalMe}
+          paypalContact={pot.paypalMe}
           currency={currency}
           groupId={groupId}
           onClose={() => setShowContribute(false)}

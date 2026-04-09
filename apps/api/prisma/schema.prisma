@@ -299,13 +299,12 @@ enum AuditAction {
 // ─────────────────────────────────────────
 
 model GroupPot {
-  id         String   @id @default(cuid())
-  groupId    String   @unique
-  bizumPhone String
-  bizumName  String?
-  enabled    Boolean  @default(true)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  groupId   String   @unique
+  paypalMe  String
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   group         Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
   contributions PotContribution[]

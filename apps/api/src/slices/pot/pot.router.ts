@@ -11,8 +11,7 @@ export const potRouter = Router({ mergeParams: true })
 potRouter.use(authenticate, requireGroupMember)
 
 const ConfigurePotSchema = z.object({
-  bizumPhone: z.string().min(9).max(15).regex(/^\+?[0-9]+$/, 'Teléfono inválido'),
-  bizumName: z.string().min(1).max(60).optional(),
+  paypalMe: z.string().min(1).max(100).regex(/^[a-zA-Z0-9._-]+$/, 'Usuario de PayPal.me inválido'),
   enabled: z.boolean().optional(),
 })
 
@@ -67,8 +66,7 @@ potRouter.get('/', async (req: Request<{ groupId: string }>, res: Response) => {
   res.json({
     data: {
       id: pot.id,
-      bizumPhone: pot.bizumPhone,
-      bizumName: pot.bizumName,
+      paypalMe: pot.paypalMe,
       enabled: pot.enabled,
       totalConfirmed: totalConfirmed.toFixed(2),
       contributions: pot.contributions.map(formatContribution),
@@ -87,7 +85,7 @@ potRouter.put('/', requireGroupAdmin, async (req: Request<{ groupId: string }>, 
     update: result.data,
   })
 
-  res.json({ data: { id: pot.id, bizumPhone: pot.bizumPhone, bizumName: pot.bizumName, enabled: pot.enabled } })
+  res.json({ data: { id: pot.id, paypalMe: pot.paypalMe, enabled: pot.enabled } })
 })
 
 // POST /api/v1/groups/:groupId/pot/contributions — miembro registra intención de pago

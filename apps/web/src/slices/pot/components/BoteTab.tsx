@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Wallet, Check, X, Settings, ExternalLink, Copy, ChevronDown, ChevronUp } from 'lucide-react'
+import { Wallet, Check, X, Settings, ExternalLink, ChevronDown, ChevronUp } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { cn } from '@/shared/utils/cn'
 import { formatCurrency } from '@/shared/utils'
@@ -22,19 +22,10 @@ interface Props {
   isAdmin: boolean
 }
 
-// ─── Deep link Bizum ─────────────────────────────────────────
-function openBizum(phone: string, amount: number, concept: string): boolean {
-  const ua = navigator.userAgent.toLowerCase()
-  const isAndroid = ua.includes('android')
-
-  if (isAndroid) {
-    // Intent URL para Android — abre la app Bizum directamente
-    const encodedConcept = encodeURIComponent(concept)
-    window.location.href = `intent://send?phone=${phone}&amount=${amount.toFixed(2)}&concept=${encodedConcept}#Intent;package=es.bizum.app;scheme=bizum;end`
-    return true
-  }
-  // iOS y Desktop: mostrar fallback con datos para copiar
-  return false
+// ─── Abrir PayPal.me ─────────────────────────────────────────
+function openPayPal(paypalMe: string, amount: number) {
+  const url = `https://www.paypal.com/paypalme/${paypalMe}/${amount.toFixed(2)}`
+  window.open(url, '_blank', 'noopener,noreferrer')
 }
 
 // ─── Tarjeta de contribución individual ──────────────────────
@@ -64,7 +55,7 @@ function ContributionCard({
   const statusColors = {
     PENDING: 'bg-warning/10 text-warning border-warning/20',
     CONFIRMED: 'bg-success/10 text-success border-success/20',
-    CANCELLED: 'bg-muted text-muted-foreground border-border line-through',
+    CANCELLED: 'bg-muted text-muted-foreground border-border',
   }
 
   const statusLabel = {
@@ -74,11 +65,7 @@ function ContributionCard({
   }
 
   return (
-    <div className={cn(
-      'flex items-center gap-3 px-3.5 py-3',
-      contribution.status === 'CANCELLED' && 'opacity-50',
-    )}>
-      {/* Avatar */}
+    <div className={cn('flex items-center gap-3 px-3.5 py-3', contribution.status === 'CANCELLED' && 'opacity-50')}>
       <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
         {contribution.userAvatarUrl ? (
           <img src={contribution.userAvatarUrl} alt={contribution.userName} className="w-full h-full rounded-full object-cover" />
@@ -87,27 +74,18 @@ function ContributionCard({
         )}
       </div>
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground">
-          {isMe ? t('groups.you') : contribution.userName}
-        </p>
-        {contribution.notes && (
-          <p className="text-xs text-muted-foreground truncate">{contribution.notes}</p>
-        )}
+        <p className="text-sm font-medium text-foreground">{isMe ? t('groups.you') : contribution.userName}</p>
+        {contribution.notes && <p className="text-xs text-muted-foreground truncate">{contribution.notes}</p>}
       </div>
 
-      {/* Importe + estado */}
       <div className="flex items-center gap-2 flex-shrink-0">
-        <span className="text-sm font-semibold text-foreground">
-          {formatCurrency(contribution.amount, currency)}
-        </span>
+        <span className="text-sm font-semibold text-foreground">{formatCurrency(contribution.amount, currency)}</span>
         <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full border font-medium', statusColors[contribution.status])}>
           {statusLabel[contribution.status]}
         </span>
       </div>
 
-      {/* Acciones admin */}
       {isAdmin && contribution.status === 'PENDING' && (
         <button
           onClick={() => onConfirm(contribution.id)}
@@ -134,15 +112,13 @@ function ContributionCard({
 
 // ─── Modal para ingresar al bote ─────────────────────────────
 function ContributeModal({
-  bizumPhone,
-  bizumName,
+  paypalMe,
   groupName,
   currency,
   onClose,
   groupId,
 }: {
-  bizumPhone: string
-  bizumName: string | null
+  paypalMe: string
   groupName: string
   currency: string
   onClose: () => void
@@ -151,157 +127,97 @@ function ContributeModal({
   const { t } = useTranslation()
   const [amount, setAmount] = useState('')
   const [notes, setNotes] = useState('')
-  const [step, setStep] = useState<'form' | 'bizum'>('form')
-  const [copied, setCopied] = useState(false)
   const addContribution = useAddContribution(groupId)
 
   async function handlePay() {
     const num = parseFloat(amount)
     if (!num || num <= 0) return
-
     await addContribution.mutateAsync({ amount: num, notes: notes || undefined })
-
-    // Intentar abrir Bizum
-    const opened = openBizum(bizumPhone, num, `Bote ${groupName}`)
-    if (!opened) {
-      setStep('bizum') // Desktop: mostrar fallback con datos
-    } else {
-      onClose()
-    }
-  }
-
-  function handleCopyPhone() {
-    navigator.clipboard.writeText(bizumPhone)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    openPayPal(paypalMe, num)
+    onClose()
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm bg-background rounded-2xl shadow-xl">
-        {step === 'form' ? (
-          <>
-            <div className="p-5 border-b border-border">
-              <h3 className="text-base font-semibold text-foreground">{t('pot.contribute')}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {t('pot.contributeDesc', { name: bizumName ?? bizumPhone })}
-              </p>
+        <div className="p-5 border-b border-border">
+          <h3 className="text-base font-semibold text-foreground">{t('pot.contribute')}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {t('pot.contributeDesc', { name: paypalMe })}
+          </p>
+        </div>
+        <div className="p-5 space-y-4">
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">{t('pot.amount')}</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">{currency}</span>
+              <input
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="w-full pl-12 pr-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                autoFocus
+              />
             </div>
-            <div className="p-5 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">{t('pot.amount')}</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">{currency}</span>
-                  <input
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.00"
-                    className="w-full pl-12 pr-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    autoFocus
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-foreground">
-                  {t('pot.notes')} <span className="text-muted-foreground font-normal">({t('common.optional')})</span>
-                </label>
-                <input
-                  type="text"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  maxLength={200}
-                  placeholder={t('pot.notesPlaceholder')}
-                  className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <ApiErrorMessage error={addContribution.error} />
-            </div>
-            <div className="p-4 flex gap-2 border-t border-border">
-              <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-accent transition-colors">
-                {t('common.cancel')}
-              </button>
-              <button
-                onClick={handlePay}
-                disabled={!amount || parseFloat(amount) <= 0 || addContribution.isPending}
-                className="flex-1 py-2.5 rounded-xl bg-[#007AFF] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity"
-              >
-                {addContribution.isPending ? (
-                  <LoadingSpinner size="xs" />
-                ) : (
-                  <>
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    {t('pot.openBizum')}
-                  </>
-                )}
-              </button>
-            </div>
-          </>
-        ) : (
-          // Fallback desktop
-          <>
-            <div className="p-5 border-b border-border">
-              <h3 className="text-base font-semibold text-foreground">{t('pot.bizumFallbackTitle')}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{t('pot.bizumFallbackDesc')}</p>
-            </div>
-            <div className="p-5 space-y-3">
-              <div className="rounded-xl bg-muted p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t('pot.recipient')}</span>
-                  <span className="font-medium text-foreground">{bizumName ?? t('pot.groupAdmin')}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t('pot.phone')}</span>
-                  <span className="font-semibold text-foreground">{bizumPhone}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t('pot.amount')}</span>
-                  <span className="font-semibold text-foreground">{formatCurrency(amount, currency)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{t('pot.concept')}</span>
-                  <span className="font-medium text-foreground">Bote {groupName}</span>
-                </div>
-              </div>
-              <a
-                href={`bizum://send?phone=${bizumPhone}&amount=${parseFloat(amount).toFixed(2)}&concept=${encodeURIComponent(`Bote ${groupName}`)}`}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-                style={{ background: '#007AFF', color: 'white' }}
-              >
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">
+              {t('pot.notes')} <span className="text-muted-foreground font-normal">({t('common.optional')})</span>
+            </label>
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              maxLength={200}
+              placeholder={t('pot.notesPlaceholder')}
+              className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          {/* Indicador PayPal */}
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-[#003087]/10 border border-[#003087]/20">
+            <span className="text-lg">🅿️</span>
+            <p className="text-xs text-foreground">
+              {t('pot.paypalInfo', { user: paypalMe })}
+            </p>
+          </div>
+          <ApiErrorMessage error={addContribution.error} />
+        </div>
+        <div className="p-4 flex gap-2 border-t border-border">
+          <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-accent transition-colors">
+            {t('common.cancel')}
+          </button>
+          <button
+            onClick={handlePay}
+            disabled={!amount || parseFloat(amount) <= 0 || addContribution.isPending}
+            className="flex-1 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50 transition-opacity"
+            style={{ background: '#003087', color: 'white' }}
+          >
+            {addContribution.isPending ? (
+              <LoadingSpinner size="xs" />
+            ) : (
+              <>
                 <ExternalLink className="h-3.5 w-3.5" />
-                {t('pot.tryOpenBizum')}
-              </a>
-              <button
-                onClick={handleCopyPhone}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-accent transition-colors"
-              >
-                <Copy className="h-3.5 w-3.5" />
-                {copied ? t('common.copied') : t('pot.copyPhone')}
-              </button>
-            </div>
-            <div className="p-4 border-t border-border">
-              <button onClick={onClose} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity">
-                {t('pot.donePayment')}
-              </button>
-            </div>
-          </>
-        )}
+                {t('pot.openPayPal')}
+              </>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   )
 }
 
 // ─── Formulario de configuración (solo admin) ─────────────────
-function ConfigureForm({ groupId, current, onDone }: { groupId: string; current: { bizumPhone: string; bizumName?: string | null } | null; onDone: () => void }) {
+function ConfigureForm({ groupId, current, onDone }: { groupId: string; current: { paypalMe: string } | null; onDone: () => void }) {
   const { t } = useTranslation()
-  const [phone, setPhone] = useState(current?.bizumPhone ?? '')
-  const [name, setName] = useState(current?.bizumName ?? '')
+  const [paypalMe, setPaypalMe] = useState(current?.paypalMe ?? '')
   const configure = useConfigurePot(groupId)
 
   async function handleSave() {
-    await configure.mutateAsync({ bizumPhone: phone.trim(), bizumName: name.trim() || undefined })
+    await configure.mutateAsync({ paypalMe: paypalMe.trim() })
     onDone()
   }
 
@@ -311,31 +227,19 @@ function ConfigureForm({ groupId, current, onDone }: { groupId: string; current:
         <Settings className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">{t('pot.configure')}</h3>
       </div>
-      <div className="space-y-3">
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-foreground">{t('pot.bizumPhone')}</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="612345678"
-            className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <p className="text-[10px] text-muted-foreground">{t('pot.bizumPhoneDesc')}</p>
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-foreground">
-            {t('pot.bizumName')} <span className="text-muted-foreground font-normal">({t('common.optional')})</span>
-          </label>
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-foreground">{t('pot.paypalUsername')}</label>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm text-muted-foreground flex-shrink-0">paypal.me/</span>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t('pot.bizumNamePlaceholder')}
-            maxLength={60}
-            className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            value={paypalMe}
+            onChange={(e) => setPaypalMe(e.target.value.replace(/[^a-zA-Z0-9._-]/g, ''))}
+            placeholder="tunombre"
+            className="flex-1 px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
+        <p className="text-[10px] text-muted-foreground">{t('pot.paypalUsernameDesc')}</p>
       </div>
       <ApiErrorMessage error={configure.error} />
       <div className="flex gap-2">
@@ -344,7 +248,7 @@ function ConfigureForm({ groupId, current, onDone }: { groupId: string; current:
         </button>
         <button
           onClick={handleSave}
-          disabled={!phone.trim() || configure.isPending}
+          disabled={!paypalMe.trim() || configure.isPending}
           className="flex-1 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {configure.isPending ? t('common.loading') : t('common.save')}
@@ -367,14 +271,9 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
   const [showHistory, setShowHistory] = useState(false)
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center py-16">
-        <LoadingSpinner />
-      </div>
-    )
+    return <div className="flex justify-center py-16"><LoadingSpinner /></div>
   }
 
-  // Sin bote configurado
   if (!pot) {
     return (
       <div className="space-y-4 pb-6">
@@ -411,9 +310,7 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('pot.totalInPot')}</p>
-            <p className="text-3xl font-bold text-foreground mt-1">
-              {formatCurrency(pot.totalConfirmed, currency)}
-            </p>
+            <p className="text-3xl font-bold text-foreground mt-1">{formatCurrency(pot.totalConfirmed, currency)}</p>
           </div>
           <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
             <Wallet className="h-7 w-7 text-primary" />
@@ -421,22 +318,25 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
         </div>
         {pendingContributions.length > 0 && (
           <p className="text-xs text-muted-foreground mt-3">
-            {t('pot.pendingInfo', { count: pendingContributions.length, amount: formatCurrency(
-              pendingContributions.reduce((acc, c) => acc + parseFloat(c.amount), 0).toFixed(2),
-              currency
-            ) })}
+            {t('pot.pendingInfo', {
+              count: pendingContributions.length,
+              amount: formatCurrency(
+                pendingContributions.reduce((acc, c) => acc + parseFloat(c.amount), 0).toFixed(2),
+                currency,
+              ),
+            })}
           </p>
         )}
       </div>
 
-      {/* Botón Bizum */}
+      {/* Botón PayPal */}
       <button
         onClick={() => setShowContribute(true)}
         className="w-full py-3.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-[0.98]"
-        style={{ background: '#007AFF', color: 'white' }}
+        style={{ background: '#003087', color: 'white' }}
       >
         <ExternalLink className="h-4 w-4" />
-        {t('pot.payWithBizum')}
+        {t('pot.payWithPayPal')}
       </button>
 
       {/* Configurar (admin) */}
@@ -454,12 +354,10 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
           )
       )}
 
-      {/* Lista de contribuciones activas */}
+      {/* Lista de contribuciones */}
       {activeContributions.length > 0 && (
         <div className="space-y-1">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
-            {t('pot.contributions')}
-          </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">{t('pot.contributions')}</h3>
           <div className="rounded-xl bg-card border border-border divide-y divide-border">
             {activeContributions.map((c) => (
               <ContributionCard
@@ -478,7 +376,7 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
         </div>
       )}
 
-      {/* Historial cancelados */}
+      {/* Cancelados */}
       {historyContributions.length > 0 && (
         <div>
           <button
@@ -508,7 +406,6 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
         </div>
       )}
 
-      {/* Empty state */}
       {activeContributions.length === 0 && (
         <div className="py-8 text-center">
           <p className="text-sm text-muted-foreground">{t('pot.noContributions')}</p>
@@ -516,11 +413,9 @@ export function BoteTab({ groupId, groupName, currency, isAdmin }: Props) {
         </div>
       )}
 
-      {/* Modal contribuir */}
       {showContribute && (
         <ContributeModal
-          bizumPhone={pot.bizumPhone}
-          bizumName={pot.bizumName}
+          paypalMe={pot.paypalMe}
           groupName={groupName}
           currency={currency}
           groupId={groupId}

@@ -16,8 +16,7 @@ export interface PotContribution {
 
 export interface GroupPot {
   id: string
-  bizumPhone: string
-  bizumName: string | null
+  paypalMe: string
   enabled: boolean
   totalConfirmed: string
   contributions: PotContribution[]
@@ -41,7 +40,7 @@ export function useGroupPot(groupId: string) {
 export function useConfigurePot(groupId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: { bizumPhone: string; bizumName?: string; enabled?: boolean }) => {
+    mutationFn: async (data: { paypalMe: string; enabled?: boolean }) => {
       const res = await apiClient.put<{ data: GroupPot }>(`/groups/${groupId}/pot`, data)
       return res.data.data
     },

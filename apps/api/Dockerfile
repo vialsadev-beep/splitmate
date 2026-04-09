@@ -27,20 +27,26 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copiar node_modules completos del builder (incluye Prisma client generado)
-COPY --from=builder /app/node_modules ./node_modules
+RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# Manifiestos del workspace
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-workspace.yaml ./
+# Workspace manifests — pnpm needs these to resolve the workspace
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/shared/package.json ./packages/shared/
+
+# Install only production deps (prisma CLI is now a prod dep)
+RUN pnpm install --frozen-lockfile --prod
+
+# Shared package build output
 COPY --from=builder /app/packages/shared ./packages/shared
-COPY --from=builder /app/apps/api/package.json ./apps/api/
 
-# Artefactos de build y schema Prisma
+# API build artifacts + Prisma schema
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 
-# Script de arranque: migrar → start
+# Generate Prisma client in the runner environment
+RUN pnpm --filter @splitmate/api exec prisma generate
+
 COPY apps/api/docker-entrypoint.sh ./apps/api/docker-entrypoint.sh
 RUN chmod +x ./apps/api/docker-entrypoint.sh
 

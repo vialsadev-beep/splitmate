@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.13.0",
+    "prisma": "^5.13.0",
     "@splitmate/shared": "workspace:*",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
@@ -53,7 +54,6 @@
     "@types/passport-local": "^1.0.38",
     "@types/supertest": "^6.0.2",
     "@vitest/coverage-v8": "^1.5.0",
-    "prisma": "^5.13.0",
     "supertest": "^7.0.0",
     "tsx": "^4.7.3",
     "typescript": "^5.4.0",

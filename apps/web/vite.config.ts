@@ -5,10 +5,16 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@splitmate/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),
-    },
+    alias: [
+      {
+        find: '@splitmate/shared',
+        replacement: path.resolve(__dirname, '../../packages/shared/src/index.ts'),
+      },
+      {
+        find: /^@\//,
+        replacement: path.resolve(__dirname, './src') + '/',
+      },
+    ],
   },
   server: {
     port: 5173,

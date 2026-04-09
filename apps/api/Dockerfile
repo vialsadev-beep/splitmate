@@ -40,7 +40,10 @@ RUN pnpm install --frozen-lockfile --prod
 # Artefactos de build
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Regenerar cliente Prisma en el contexto del runner (pnpm symlinks)
+COPY --from=builder /app/packages/shared ./packages/shared
+RUN pnpm --filter @splitmate/api exec prisma generate
 
 # Script de arranque: migrar → seed (si dev) → start
 COPY apps/api/docker-entrypoint.sh ./apps/api/docker-entrypoint.sh

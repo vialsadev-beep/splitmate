@@ -83,6 +83,7 @@ export default function GroupDetailPage() {
               <span className="hidden sm:inline">{label}</span>
             </button>
           ))}
+        </div>
       </div>
 
       {/* Contenido de tabs */}

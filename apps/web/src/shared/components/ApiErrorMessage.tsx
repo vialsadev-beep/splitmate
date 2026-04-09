@@ -10,6 +10,7 @@ interface Props {
  * Para errores 500 incluye el requestId para facilitar el soporte.
  */
 export function ApiErrorMessage({ error, fallback = 'Ha ocurrido un error' }: Props) {
+  if (!error) return null
   const apiError = getApiError(error)
   const message = apiError?.message ?? fallback
   const requestId = apiError?.requestId

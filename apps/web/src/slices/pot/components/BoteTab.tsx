@@ -75,6 +75,7 @@ function ContributionCard({
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-foreground">{isMe ? t('groups.you') : contribution.userName}</p>
+        {contribution.payerContact && <p className="text-xs text-muted-foreground truncate">PayPal: {contribution.payerContact}</p>}
         {contribution.notes && <p className="text-xs text-muted-foreground truncate">{contribution.notes}</p>}
       </div>
 
@@ -123,13 +124,14 @@ function ContributeModal({
 }) {
   const { t } = useTranslation()
   const [amount, setAmount] = useState('')
+  const [payerContact, setPayerContact] = useState('')
   const [notes, setNotes] = useState('')
   const addContribution = useAddContribution(groupId)
 
   async function handlePay() {
     const num = parseFloat(amount)
     if (!num || num <= 0) return
-    await addContribution.mutateAsync({ amount: num, notes: notes || undefined })
+    await addContribution.mutateAsync({ amount: num, payerContact: payerContact || undefined, notes: notes || undefined })
     openPayPal(paypalMe, num)
     onClose()
   }
@@ -159,6 +161,17 @@ function ContributeModal({
                 autoFocus
               />
             </div>
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-foreground">{t('pot.payerContact')}</label>
+            <input
+              type="text"
+              value={payerContact}
+              onChange={(e) => setPayerContact(e.target.value)}
+              maxLength={100}
+              placeholder={t('pot.payerContactPlaceholder')}
+              className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
           </div>
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-foreground">

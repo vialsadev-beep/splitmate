@@ -8,6 +8,7 @@ export interface PotContribution {
   userAvatarUrl: string | null
   amount: string
   status: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  payerContact: string | null
   notes: string | null
   confirmedAt: string | null
   confirmedBy: string | null
@@ -51,7 +52,7 @@ export function useConfigurePot(groupId: string) {
 export function useAddContribution(groupId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: { amount: number; notes?: string }) => {
+    mutationFn: async (data: { amount: number; payerContact?: string; notes?: string }) => {
       const res = await apiClient.post<{ data: PotContribution }>(`/groups/${groupId}/pot/contributions`, data)
       return res.data.data
     },

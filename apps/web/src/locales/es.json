@@ -212,6 +212,8 @@
     "contribute": "Ingresar al bote",
     "contributeDesc": "El pago irá a paypal.me/{{name}}",
     "amount": "Importe",
+    "payerContact": "Tu email o teléfono de PayPal",
+    "payerContactPlaceholder": "ejemplo@email.com o +34 600 000 000",
     "notes": "Concepto",
     "notesPlaceholder": "Para qué es...",
     "openPayPal": "Abrir PayPal",

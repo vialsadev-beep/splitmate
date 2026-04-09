@@ -317,9 +317,10 @@ model PotContribution {
   potId       String
   groupId     String
   userId      String
-  amount      Decimal               @db.Decimal(12, 2)
-  status      PotContributionStatus @default(PENDING)
-  notes       String?
+  amount        Decimal               @db.Decimal(12, 2)
+  status        PotContributionStatus @default(PENDING)
+  payerContact  String?
+  notes         String?
   confirmedAt DateTime?
   confirmedBy String?
   createdAt   DateTime              @default(now())

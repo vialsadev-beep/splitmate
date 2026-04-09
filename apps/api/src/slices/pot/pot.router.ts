@@ -17,6 +17,7 @@ const ConfigurePotSchema = z.object({
 
 const CreateContributionSchema = z.object({
   amount: z.number().positive().multipleOf(0.01),
+  payerContact: z.string().min(1).max(100).optional(),
   notes: z.string().max(200).optional(),
 })
 
@@ -24,6 +25,7 @@ function formatContribution(c: {
   id: string
   amount: { toFixed: (n: number) => string }
   status: string
+  payerContact: string | null
   notes: string | null
   confirmedAt: Date | null
   confirmedBy: string | null
@@ -38,6 +40,7 @@ function formatContribution(c: {
     userAvatarUrl: c.user.avatarUrl,
     amount: c.amount.toFixed(2),
     status: c.status,
+    payerContact: c.payerContact,
     notes: c.notes,
     confirmedAt: c.confirmedAt?.toISOString() ?? null,
     confirmedBy: c.confirmedBy,
@@ -102,6 +105,7 @@ potRouter.post('/contributions', async (req: Request<{ groupId: string }>, res: 
       groupId: req.params.groupId,
       userId: req.user!.userId,
       amount: result.data.amount,
+      payerContact: result.data.payerContact,
       notes: result.data.notes,
     },
     include: { user: { select: { id: true, name: true, avatarUrl: true } } },

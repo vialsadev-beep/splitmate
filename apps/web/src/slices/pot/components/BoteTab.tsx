@@ -26,20 +26,15 @@ interface Props {
 function openBizum(phone: string, amount: number, concept: string): boolean {
   const ua = navigator.userAgent.toLowerCase()
   const isAndroid = ua.includes('android')
-  const isIOS = /iphone|ipad|ipod/.test(ua)
-
-  const encodedConcept = encodeURIComponent(concept)
 
   if (isAndroid) {
     // Intent URL para Android — abre la app Bizum directamente
+    const encodedConcept = encodeURIComponent(concept)
     window.location.href = `intent://send?phone=${phone}&amount=${amount.toFixed(2)}&concept=${encodedConcept}#Intent;package=es.bizum.app;scheme=bizum;end`
     return true
-  } else if (isIOS) {
-    // URL scheme de Bizum en iOS (no oficial pero funciona)
-    window.location.href = `bizum://send?phone=${phone}&amount=${amount.toFixed(2)}&concept=${encodedConcept}`
-    return true
   }
-  return false // Desktop: mostrar fallback
+  // iOS y Desktop: mostrar fallback con datos para copiar
+  return false
 }
 
 // ─── Tarjeta de contribución individual ──────────────────────
@@ -270,6 +265,14 @@ function ContributeModal({
                   <span className="font-medium text-foreground">Bote {groupName}</span>
                 </div>
               </div>
+              <a
+                href={`bizum://send?phone=${bizumPhone}&amount=${parseFloat(amount).toFixed(2)}&concept=${encodeURIComponent(`Bote ${groupName}`)}`}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+                style={{ background: '#007AFF', color: 'white' }}
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                {t('pot.tryOpenBizum')}
+              </a>
               <button
                 onClick={handleCopyPhone}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-border text-sm font-semibold hover:bg-accent transition-colors"

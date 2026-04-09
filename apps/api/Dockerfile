@@ -2,15 +2,13 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-# pnpm
 RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# Solo los manifiestos para aprovechar la caché de capas
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY apps/api/package.json ./apps/api/
 COPY packages/shared/package.json ./packages/shared/
 
-RUN pnpm install --frozen-lockfile --prod=false
+RUN pnpm install --frozen-lockfile
 
 # ─── Stage 2: build ──────────────────────────────────────────
 FROM deps AS builder
@@ -29,23 +27,20 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN corepack enable && corepack prepare pnpm@9 --activate
+# Copiar node_modules completos del builder (incluye Prisma client generado)
+COPY --from=builder /app/node_modules ./node_modules
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
-COPY apps/api/package.json ./apps/api/
-COPY packages/shared/package.json ./packages/shared/
+# Manifiestos del workspace
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder /app/apps/api/package.json ./apps/api/
 
-RUN pnpm install --frozen-lockfile --prod
-
-# Artefactos de build
+# Artefactos de build y schema Prisma
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 
-# Regenerar cliente Prisma en el contexto del runner (pnpm symlinks)
-COPY --from=builder /app/packages/shared ./packages/shared
-RUN pnpm --filter @splitmate/api exec prisma generate
-
-# Script de arranque: migrar → seed (si dev) → start
+# Script de arranque: migrar → start
 COPY apps/api/docker-entrypoint.sh ./apps/api/docker-entrypoint.sh
 RUN chmod +x ./apps/api/docker-entrypoint.sh
 

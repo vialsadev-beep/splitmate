@@ -49,7 +49,7 @@ export function useCreateExpense(groupId: string) {
       return res.data.data
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.list(groupId) })
+      qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
       qc.invalidateQueries({ queryKey: ['activity', groupId] })
     },
@@ -67,8 +67,7 @@ export function useUpdateExpense(groupId: string, expenseId: string) {
       return res.data.data
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.list(groupId) })
-      qc.invalidateQueries({ queryKey: expenseKeys.detail(groupId, expenseId) })
+      qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
     },
   })
@@ -81,7 +80,7 @@ export function useDeleteExpense(groupId: string) {
       await apiClient.delete(`/groups/${groupId}/expenses/${expenseId}`)
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.list(groupId) })
+      qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
       qc.invalidateQueries({ queryKey: ['activity', groupId] })
     },
@@ -102,8 +101,7 @@ export function useUploadReceipt(groupId: string, expenseId: string) {
       return res.data.data
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: expenseKeys.list(groupId) })
-      qc.invalidateQueries({ queryKey: expenseKeys.detail(groupId, expenseId) })
+      qc.invalidateQueries({ queryKey: ['expenses', groupId] })
     },
   })
 }

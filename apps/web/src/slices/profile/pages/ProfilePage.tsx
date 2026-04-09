@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { LogOut, Moon, Sun, Monitor, Globe } from 'lucide-react'
+import { LogOut, Moon, Sun, Monitor, Globe, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { useTheme } from '@/shared/hooks/useTheme'
-import { useLogout } from '@/slices/auth/api/auth.queries'
+import { useLogout, useUpdateProfile } from '@/slices/auth/api/auth.queries'
 import { cn } from '@/shared/utils/cn'
 import i18n from '@/shared/lib/i18n'
 
@@ -24,6 +25,15 @@ export default function ProfilePage() {
   const { user } = useAuth()
   const { theme, setTheme } = useTheme()
   const logout = useLogout()
+  const updateProfile = useUpdateProfile()
+  const [paypalMe, setPaypalMe] = useState(user?.paypalMe ?? '')
+  const [paypalSaved, setPaypalSaved] = useState(false)
+
+  async function handleSavePaypal() {
+    await updateProfile.mutateAsync({ paypalMe: paypalMe.trim() || null })
+    setPaypalSaved(true)
+    setTimeout(() => setPaypalSaved(false), 2000)
+  }
 
   async function handleLogout() {
     if (confirm(t('auth.logoutConfirm'))) {
@@ -101,6 +111,44 @@ export default function ProfilePage() {
               {label}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* PayPal.me */}
+      <div className="space-y-2">
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-1">
+          {t('profile.paypal')}
+        </h3>
+        <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
+          <p className="text-xs text-muted-foreground">{t('profile.paypalDesc')}</p>
+          <a
+            href="https://www.paypal.com/myaccount/settings/account"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs text-primary font-medium"
+          >
+            <ExternalLink className="h-3 w-3" />
+            {t('profile.paypalFindUsername')}
+          </a>
+          <div className="flex gap-2">
+            <div className="flex-1 flex items-center rounded-xl border border-input bg-background overflow-hidden">
+              <span className="px-3 text-sm text-muted-foreground flex-shrink-0">paypal.me/</span>
+              <input
+                type="text"
+                value={paypalMe}
+                onChange={(e) => setPaypalMe(e.target.value.replace(/[^a-zA-Z0-9._-]/g, ''))}
+                placeholder="tunombre"
+                className="flex-1 py-2.5 pr-3 bg-transparent text-sm text-foreground focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={handleSavePaypal}
+              disabled={updateProfile.isPending}
+              className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+            >
+              {paypalSaved ? '✓' : t('common.save')}
+            </button>
+          </div>
         </div>
       </div>
 

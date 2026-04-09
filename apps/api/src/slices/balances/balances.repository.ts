@@ -5,6 +5,7 @@ export interface UserNetBalance {
   userId: string
   name: string
   avatarUrl: string | null
+  paypalMe: string | null
   balance: Decimal // positivo = le deben, negativo = debe
 }
 
@@ -16,7 +17,7 @@ export const balancesRepository = {
   async getNetBalances(groupId: string): Promise<UserNetBalance[]> {
     const members = await prisma.groupMember.findMany({
       where: { groupId, leftAt: null },
-      include: { user: { select: { id: true, name: true, avatarUrl: true } } },
+      include: { user: { select: { id: true, name: true, avatarUrl: true, paypalMe: true } } },
     })
 
     // Obtener todos los splits activos del grupo
@@ -78,6 +79,7 @@ export const balancesRepository = {
       userId: m.userId,
       name: m.user.name,
       avatarUrl: m.user.avatarUrl,
+      paypalMe: m.user.paypalMe,
       balance: balanceMap.get(m.userId) ?? new Decimal(0),
     }))
   },

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSettleDebt } from '../api/balances.queries'
 import { formatCurrency, cn } from '@/shared/utils'
@@ -62,6 +62,19 @@ export function SettleModal({ debt, groupId, currency, onClose }: Props) {
             className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
+
+        {debt.to.paypalMe && (
+          <a
+            href={`https://www.paypal.com/paypalme/${debt.to.paypalMe}/${debt.amount}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.98] transition-all"
+            style={{ background: '#003087', color: 'white' }}
+          >
+            <ExternalLink className="h-4 w-4" />
+            {t('balances.payWithPayPal')}
+          </a>
+        )}
 
         <div className="flex gap-2">
           <button

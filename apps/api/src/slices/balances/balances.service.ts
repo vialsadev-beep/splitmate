@@ -6,7 +6,7 @@ import { AppError } from '../../shared/errors/AppError'
 
 interface DebtTransfer {
   from: { id: string; name: string; avatarUrl: string | null }
-  to: { id: string; name: string; avatarUrl: string | null }
+  to: { id: string; name: string; avatarUrl: string | null; paypalMe: string | null }
   amount: string
 }
 
@@ -48,7 +48,7 @@ export function simplifyDebts(balances: UserNetBalance[]): DebtTransfer[] {
     if (transferAmount.greaterThan(EPSILON)) {
       result.push({
         from: { id: debtor.userId, name: debtor.name, avatarUrl: debtor.avatarUrl },
-        to: { id: creditor.userId, name: creditor.name, avatarUrl: creditor.avatarUrl },
+        to: { id: creditor.userId, name: creditor.name, avatarUrl: creditor.avatarUrl, paypalMe: creditor.paypalMe },
         amount: transferAmount.toFixed(2),
       })
     }

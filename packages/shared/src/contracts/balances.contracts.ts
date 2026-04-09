@@ -19,6 +19,7 @@ export const SimplifiedDebtSchema = z.object({
     id: z.string(),
     name: z.string(),
     avatarUrl: z.string().nullable(),
+    paypalMe: z.string().nullable(),
   }),
   amount: z.string(),
 })

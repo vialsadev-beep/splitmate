@@ -23,6 +23,7 @@ export const UpdateProfileSchema = z.object({
   name: z.string().min(2).max(50).optional(),
   locale: z.enum(['es', 'en']).optional(),
   theme: z.enum(['light', 'dark', 'system']).optional(),
+  paypalMe: z.string().max(100).nullable().optional(),
 })
 
 export const ChangePasswordSchema = z.object({
@@ -43,6 +44,7 @@ export const UserResponseSchema = z.object({
   theme: z.string(),
   createdAt: z.string(),
   hasPassword: z.boolean(),
+  paypalMe: z.string().nullable(),
 })
 
 export const AuthResponseSchema = z.object({

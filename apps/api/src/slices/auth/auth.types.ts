@@ -12,4 +12,5 @@ export interface AuthUser {
   theme: string
   createdAt: Date
   passwordHash: string | null
+  paypalMe: string | null
 }

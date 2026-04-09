@@ -111,7 +111,8 @@
     "myBalance": "Mi balance",
     "total": "Total gastado",
     "creditor": "A tu favor",
-    "debtor": "Debes"
+    "debtor": "Debes",
+    "payWithPayPal": "Pagar con PayPal"
   },
   "payments": {
     "title": "Pagos",
@@ -149,7 +150,11 @@
     "passwordMismatch": "Las contraseñas no coinciden",
     "passwordChanged": "Contraseña cambiada. Inicia sesión de nuevo en otros dispositivos.",
     "account": "Cuenta",
-    "preferences": "Preferencias"
+    "preferences": "Preferencias",
+    "paypal": "PayPal",
+    "paypalDesc": "Tu usuario de PayPal.me para que tus compañeros puedan pagarte fácilmente al saldar deudas.",
+    "paypalFindUsername": "¿Cómo encuentro mi usuario de PayPal.me?",
+    "paypalSaved": "Guardado"
   },
   "activity": {
     "title": "Actividad",

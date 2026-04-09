@@ -20,6 +20,7 @@ model User {
   passwordHash String?
   locale       String    @default("es")
   theme        String    @default("system")
+  paypalMe     String?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?

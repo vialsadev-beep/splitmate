@@ -39,6 +39,7 @@ function formatUser(user: AuthUser) {
     theme: user.theme,
     createdAt: user.createdAt.toISOString(),
     hasPassword: !!user.passwordHash,
+    paypalMe: user.paypalMe,
   }
 }
 

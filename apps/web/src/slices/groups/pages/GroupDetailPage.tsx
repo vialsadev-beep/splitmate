@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Plus, Receipt, Scale, Users, Link as LinkIcon, BarChart2, Clock, Target } from 'lucide-react'
+import { Plus, Receipt, Scale, Users, Link as LinkIcon, BarChart2, Clock, Target, Wallet } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useGroup } from '../api/groups.queries'
+import { useAuth } from '@/shared/hooks/useAuth'
 import { PageLoader } from '@/shared/components/LoadingSpinner'
 import { cn } from '@/shared/utils/cn'
 import { ExpenseListTab } from '@/slices/expenses/components/ExpenseListTab'
@@ -12,8 +13,9 @@ import { InviteModal } from '../components/InviteModal'
 import { StatsTab } from '@/slices/stats/pages/StatsTab'
 import { ActivityFeedTab } from '@/slices/activity/components/ActivityFeedTab'
 import { BudgetsTab } from '@/slices/budgets/components/BudgetsTab'
+import { BoteTab } from '@/slices/pot/components/BoteTab'
 
-type Tab = 'expenses' | 'balance' | 'stats' | 'activity' | 'budgets' | 'members'
+type Tab = 'expenses' | 'balance' | 'budgets' | 'pot' | 'stats' | 'activity' | 'members'
 
 export default function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>()
@@ -23,14 +25,18 @@ export default function GroupDetailPage() {
   const [showInvite, setShowInvite] = useState(false)
 
   const { data: group, isLoading } = useGroup(groupId!)
+  const { user } = useAuth()
 
   if (isLoading) return <PageLoader />
   if (!group) return null
+
+  const isAdmin = group?.members.find((m) => m.userId === user?.id)?.role === 'ADMIN'
 
   const tabs = [
     { id: 'expenses' as Tab, label: t('groups.expenses'), icon: Receipt },
     { id: 'balance' as Tab, label: t('groups.balance'), icon: Scale },
     { id: 'budgets' as Tab, label: t('budgets.title'), icon: Target },
+    { id: 'pot' as Tab, label: t('pot.title'), icon: Wallet },
     { id: 'stats' as Tab, label: t('stats.title'), icon: BarChart2 },
     { id: 'activity' as Tab, label: t('activity.title'), icon: Clock },
     { id: 'members' as Tab, label: t('groups.members'), icon: Users },
@@ -83,6 +89,7 @@ export default function GroupDetailPage() {
         {activeTab === 'expenses' && <ExpenseListTab groupId={groupId!} currency={group.currency} />}
         {activeTab === 'balance' && <BalanceTab groupId={groupId!} />}
         {activeTab === 'budgets' && <BudgetsTab groupId={groupId!} currency={group.currency} />}
+        {activeTab === 'pot' && <BoteTab groupId={groupId!} groupName={group.name} currency={group.currency} isAdmin={isAdmin} />}
         {activeTab === 'stats' && <StatsTab groupId={groupId!} />}
         {activeTab === 'activity' && <ActivityFeedTab groupId={groupId!} />}
         {activeTab === 'members' && <MembersTab group={group} />}

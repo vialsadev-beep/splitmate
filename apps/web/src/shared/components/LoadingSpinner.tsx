@@ -1,12 +1,12 @@
 import { cn } from '@/shared/utils/cn'
 
 interface Props {
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
   className?: string
   fullScreen?: boolean
 }
 
-const sizes = { sm: 'h-4 w-4', md: 'h-8 w-8', lg: 'h-12 w-12' }
+const sizes = { xs: 'h-3 w-3', sm: 'h-4 w-4', md: 'h-8 w-8', lg: 'h-12 w-12' }
 
 export function LoadingSpinner({ size = 'md', className, fullScreen }: Props) {
   const spinner = (

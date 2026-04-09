@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { apiClient } from '@/shared/lib/api-client'
 import { useAuthStore } from '../store/auth.store'
 import { queryClient } from '@/shared/lib/query-client'
-import type { RegisterInput, LoginInput, UpdateProfileInput, AuthResponse, UserResponse } from '@splitmate/shared'
+import type { RegisterInput, LoginInput, UpdateProfileInput, ChangePasswordInput, AuthResponse, UserResponse } from '@splitmate/shared'
 
 export function useRegister() {
   return useMutation({
@@ -63,6 +63,32 @@ export function useUpdateProfile() {
       const token = useAuthStore.getState().accessToken ?? ''
       useAuthStore.getState().setAuth(user, token)
       queryClient.invalidateQueries({ queryKey: ['me'] })
+    },
+  })
+}
+
+export function useUploadUserAvatar() {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const form = new FormData()
+      form.append('avatar', file)
+      const res = await apiClient.post<{ data: UserResponse }>('/auth/me/avatar', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      return res.data.data
+    },
+    onSuccess: (user) => {
+      const token = useAuthStore.getState().accessToken ?? ''
+      useAuthStore.getState().setAuth(user, token)
+      queryClient.invalidateQueries({ queryKey: ['me'] })
+    },
+  })
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (data: ChangePasswordInput) => {
+      await apiClient.post('/auth/me/password', data)
     },
   })
 }

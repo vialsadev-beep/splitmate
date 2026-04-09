@@ -6,9 +6,11 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import { env } from '../../config/env'
 import { validate } from '../../shared/middleware/validate'
 import { authenticate } from '../../shared/middleware/authenticate'
+import { uploadMiddleware } from '../../shared/middleware/upload'
 import { authHandler } from './auth.handler'
 import { authService } from './auth.service'
-import { RegisterSchema, LoginSchema, UpdateProfileSchema } from '@splitmate/shared'
+import { authRepository } from './auth.repository'
+import { RegisterSchema, LoginSchema, UpdateProfileSchema, ChangePasswordSchema } from '@splitmate/shared'
 
 export const authRouter = Router()
 
@@ -63,3 +65,22 @@ authRouter.get('/google/callback', passport.authenticate('google', { session: fa
 // ─── Rutas protegidas ─────────────────────────────────────────
 authRouter.get('/me', authenticate, authHandler.getMe)
 authRouter.patch('/me', authenticate, validate(UpdateProfileSchema), authHandler.updateMe)
+
+// Subir avatar de usuario
+authRouter.post('/me/avatar', authenticate, uploadMiddleware.single('avatar'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: { code: 'NO_FILE', message: 'No se subió ningún archivo' } })
+  const avatarUrl = `/uploads/${req.file.filename}`
+  const user = await authRepository.updateUser(req.user!.userId, { avatarUrl })
+  const formatted = {
+    id: user.id, name: user.name, email: user.email,
+    avatarUrl: user.avatarUrl, locale: user.locale, theme: user.theme,
+    createdAt: user.createdAt.toISOString(), hasPassword: !!user.passwordHash,
+  }
+  res.json({ data: formatted })
+})
+
+// Cambiar contraseña
+authRouter.post('/me/password', authenticate, validate(ChangePasswordSchema), async (req, res) => {
+  await authService.changePassword(req.user!.userId, req.body)
+  res.json({ data: { message: 'Contraseña actualizada correctamente' } })
+})

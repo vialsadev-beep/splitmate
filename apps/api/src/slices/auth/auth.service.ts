@@ -5,7 +5,7 @@ import { env } from '../../config/env'
 import { AppError } from '../../shared/errors/AppError'
 import { authRepository } from './auth.repository'
 import type { TokenPair, AuthUser } from './auth.types'
-import type { RegisterInput, LoginInput, UpdateProfileInput } from '@splitmate/shared'
+import type { RegisterInput, LoginInput, UpdateProfileInput, ChangePasswordInput } from '@splitmate/shared'
 
 const BCRYPT_ROUNDS = 12
 
@@ -38,6 +38,7 @@ function formatUser(user: AuthUser) {
     locale: user.locale,
     theme: user.theme,
     createdAt: user.createdAt.toISOString(),
+    hasPassword: !!user.passwordHash,
   }
 }
 
@@ -117,6 +118,20 @@ export const authService = {
   async updateProfile(userId: string, input: UpdateProfileInput) {
     const user = await authRepository.updateUser(userId, input)
     return formatUser(user as AuthUser)
+  },
+
+  async changePassword(userId: string, input: ChangePasswordInput) {
+    const user = await authRepository.findUserById(userId)
+    if (!user) throw AppError.notFound('Usuario no encontrado')
+    if (!user.passwordHash) throw AppError.badRequest('Esta cuenta no tiene contraseña (usa Google para iniciar sesión)')
+
+    const isValid = await bcrypt.compare(input.currentPassword, user.passwordHash)
+    if (!isValid) throw AppError.unauthorized('Contraseña actual incorrecta')
+
+    const newHash = await bcrypt.hash(input.newPassword, BCRYPT_ROUNDS)
+    await authRepository.updateUser(userId, { passwordHash: newHash })
+    // Revocar todos los refresh tokens para forzar relogin en otros dispositivos
+    await authRepository.revokeAllUserRefreshTokens(userId)
   },
 
   async loginWithOAuth(data: {

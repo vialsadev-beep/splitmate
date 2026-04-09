@@ -11,4 +11,5 @@ export interface AuthUser {
   locale: string
   theme: string
   createdAt: Date
+  passwordHash: string | null
 }

@@ -70,7 +70,11 @@
       "Bash(npx prisma:*)",
       "Bash(xargs grep:*)",
       "Bash(where \"Docker Desktop.exe\")",
-      "Bash(pnpm --filter api test:integration)"
+      "Bash(pnpm --filter api test:integration)",
+      "Bash(node:*)",
+      "Bash(pnpm --filter @splitmate/shared build)",
+      "Bash(pnpm --filter @splitmate/api build)",
+      "Bash(pnpm --filter @splitmate/web build)"
     ]
   }
 }

@@ -32,6 +32,7 @@ model User {
   paymentsReceived Payment[]       @relation("PaymentReceiver")
   notifications    Notification[]
   auditLogs        AuditLog[]
+  potContributions PotContribution[]
 
   @@map("users")
 }
@@ -87,6 +88,8 @@ model Group {
   categories Category[]
   budgets   Budget[]
   auditLogs AuditLog[]
+  pot       GroupPot?
+  potContributions PotContribution[]
 
   @@map("groups")
 }
@@ -289,4 +292,50 @@ enum AuditAction {
   UPDATE
   DELETE
   RESTORE
+}
+
+// ─────────────────────────────────────────
+// BOTE COMÚN
+// ─────────────────────────────────────────
+
+model GroupPot {
+  id         String   @id @default(cuid())
+  groupId    String   @unique
+  bizumPhone String
+  bizumName  String?
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  group         Group             @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  contributions PotContribution[]
+
+  @@map("group_pots")
+}
+
+model PotContribution {
+  id          String                @id @default(cuid())
+  potId       String
+  groupId     String
+  userId      String
+  amount      Decimal               @db.Decimal(12, 2)
+  status      PotContributionStatus @default(PENDING)
+  notes       String?
+  confirmedAt DateTime?
+  confirmedBy String?
+  createdAt   DateTime              @default(now())
+
+  pot   GroupPot @relation(fields: [potId], references: [id], onDelete: Cascade)
+  group Group    @relation(fields: [groupId], references: [id])
+  user  User     @relation(fields: [userId], references: [id])
+
+  @@index([groupId])
+  @@index([userId])
+  @@map("pot_contributions")
+}
+
+enum PotContributionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
 }

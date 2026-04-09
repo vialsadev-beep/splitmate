@@ -42,6 +42,7 @@ export const UserResponseSchema = z.object({
   locale: z.string(),
   theme: z.string(),
   createdAt: z.string(),
+  hasPassword: z.boolean(),
 })
 
 export const AuthResponseSchema = z.object({

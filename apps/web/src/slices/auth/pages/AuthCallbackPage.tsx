@@ -25,7 +25,9 @@ export default function AuthCallbackPage() {
       })
       .then(({ data }) => {
         useAuthStore.getState().setAuth(data.data, token)
-        navigate('/groups', { replace: true })
+        const redirect = sessionStorage.getItem('authRedirect') ?? '/groups'
+        sessionStorage.removeItem('authRedirect')
+        navigate(redirect, { replace: true })
       })
       .catch(() => {
         navigate('/login?error=oauth_failed', { replace: true })

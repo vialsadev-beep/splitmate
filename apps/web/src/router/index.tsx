@@ -18,6 +18,7 @@ const EditExpensePage = lazy(() => import('@/slices/expenses/pages/EditExpensePa
 
 const ProfilePage = lazy(() => import('@/slices/profile/pages/ProfilePage'))
 const NotificationsPage = lazy(() => import('@/slices/notifications/pages/NotificationsPage'))
+const JoinGroupPage = lazy(() => import('@/slices/groups/pages/JoinGroupPage'))
 
 function S({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<PageLoader />}>{children}</Suspense>
@@ -50,6 +51,9 @@ export const router = createBrowserRouter([
       { path: '/groups/:groupId', element: <S><GroupDetailPage /></S> },
       { path: '/groups/:groupId/expenses/new', element: <S><CreateExpensePage /></S> },
       { path: '/groups/:groupId/expenses/:expenseId/edit', element: <S><EditExpensePage /></S> },
+
+      // Join group
+      { path: '/join/:code', element: <S><JoinGroupPage /></S> },
 
       // Profile
       { path: '/profile', element: <S><ProfilePage /></S> },

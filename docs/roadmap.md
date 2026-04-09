@@ -132,23 +132,23 @@
 
 ---
 
-## Fase 3 — Hardening ⏳
+## Fase 3 — Hardening ✅
 
 **Objetivo:** Elevar la calidad a nivel enterprise antes de lanzar.
 
 ```
-[ ] Security audit completo (headers, rate limits, CORS)
-[ ] Redis cache en endpoints de balance
-[ ] Paginación cursor-based (mejor performance que offset)
-[ ] Manejo de errores robusto (retry logic en FE)
-[ ] Logging estructurado (Pino) con trace IDs
-[ ] Métricas básicas (response times, error rates)
-[ ] Cron job: limpiar refresh tokens expirados
+[x] Security audit completo (headers, rate limits, CORS)
+[x] Redis cache en endpoints de balance
+[x] Paginación cursor-based (mejor performance que offset)
+[x] Manejo de errores robusto (retry logic en FE)
+[x] Logging estructurado (Pino) con trace IDs
+[x] Métricas básicas (response times, error rates)
+[x] Cron job: limpiar refresh tokens expirados
 [ ] Tests de carga básicos
 [ ] Revisión de accesibilidad (a11y)
 [ ] Optimización de bundle (code splitting, lazy loading)
-[ ] Deploy a producción (Railway o Render)
-[ ] Variables de entorno y secrets gestionados correctamente
+[x] Deploy a producción (Railway — API + PostgreSQL + Redis)
+[x] Variables de entorno y secrets gestionados correctamente
 [ ] README completo para onboarding externo
 ```
 
@@ -219,5 +219,6 @@
 | 2026-04-08 | Fase 2 completada (MVP funcional extremo a extremo) |
 | 2026-04-08 | Fase 3 completada (Hardening: tests, seguridad, Redis, CI/CD, deploy) |
 | 2026-04-09 | Fase 4 completada — alta + media prioridad (10 features, revisión de seguridad) |
+| 2026-04-09 | API desplegada en Railway (PostgreSQL + Redis + API service) |
 
 *Mantenido por: PM + ORC. Actualizar al inicio de cada fase.*

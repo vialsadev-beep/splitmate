@@ -28,8 +28,6 @@ export default function GroupDetailPage() {
   if (isLoading) return <PageLoader />
   if (!group) return null
 
-  const isAdmin = group?.members.find((m) => m.userId === user?.id)?.role === 'ADMIN'
-
   const tabs = [
     { id: 'expenses' as Tab, label: t('groups.expenses'), icon: Receipt },
     { id: 'balance' as Tab, label: t('groups.balance'), icon: Scale },

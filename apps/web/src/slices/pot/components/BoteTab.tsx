@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Wallet, Plus, Check, X, Settings, ExternalLink, Copy, ChevronDown, ChevronUp } from 'lucide-react'
+import { Wallet, Check, X, Settings, ExternalLink, Copy, ChevronDown, ChevronUp } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { cn } from '@/shared/utils/cn'
 import { formatCurrency } from '@/shared/utils'

@@ -68,6 +68,8 @@
     @apply bg-background text-foreground font-sans antialiased;
     /* Prevenir scroll horizontal en móvil */
     overflow-x: hidden;
+    /* Deshabilitar zoom en iOS */
+    touch-action: pan-x pan-y;
   }
 
   /* Scroll suave */

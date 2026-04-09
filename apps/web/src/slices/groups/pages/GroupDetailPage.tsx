@@ -64,24 +64,25 @@ export default function GroupDetailPage() {
         </button>
       </div>
 
-      {/* Tabs — icon+label en ≥sm, solo icono en xs */}
-      <div className="flex rounded-xl bg-muted p-1 gap-1">
-        {tabs.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActiveTab(id)}
-            title={label}
-            className={cn(
-              'flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold transition-all',
-              activeTab === id
-                ? 'bg-background text-foreground shadow-sm'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            <Icon className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="hidden sm:inline truncate">{label}</span>
-          </button>
-        ))}
+      {/* Tabs — deslizable en móvil */}
+      <div className="overflow-x-auto scrollbar-none -mx-4 px-4">
+        <div className="flex rounded-xl bg-muted p-1 gap-1 min-w-max sm:min-w-0">
+          {tabs.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveTab(id)}
+              title={label}
+              className={cn(
+                'flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap',
+                activeTab === id
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
       </div>
 
       {/* Contenido de tabs */}

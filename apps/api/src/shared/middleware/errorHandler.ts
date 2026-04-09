@@ -20,7 +20,10 @@ export function errorHandler(err: Error, req: Request, res: Response, _next: Nex
   }
 
   // Error inesperado — loguear con contexto completo
-  req.log.error({ err, path: req.path, method: req.method }, 'Unhandled error')
+  req.log.error(
+    { err, path: req.path, method: req.method, errMsg: (err as Error)?.message, errStack: (err as Error)?.stack },
+    'Unhandled error',
+  )
 
   return res.status(500).json({
     error: {

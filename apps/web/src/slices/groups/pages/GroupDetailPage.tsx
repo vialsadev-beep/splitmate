@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Plus, Receipt, Scale, Users, Link as LinkIcon, BarChart2, Clock, Target } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useGroup } from '../api/groups.queries'
+import { useAuth } from '@/shared/hooks/useAuth'
 import { PageLoader } from '@/shared/components/LoadingSpinner'
 import { cn } from '@/shared/utils/cn'
 import { ExpenseListTab } from '@/slices/expenses/components/ExpenseListTab'
@@ -18,6 +19,7 @@ export default function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>()
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('expenses')
   const [showInvite, setShowInvite] = useState(false)
 
@@ -25,6 +27,8 @@ export default function GroupDetailPage() {
 
   if (isLoading) return <PageLoader />
   if (!group) return null
+
+  const isAdmin = group.members.find((m) => m.userId === user?.id)?.role === 'ADMIN'
 
   const tabs = [
     { id: 'expenses' as Tab, label: t('groups.expenses'), icon: Receipt },
@@ -81,7 +85,7 @@ export default function GroupDetailPage() {
 
       {/* Contenido de tabs */}
       <div>
-        {activeTab === 'expenses' && <ExpenseListTab groupId={groupId!} currency={group.currency} />}
+        {activeTab === 'expenses' && <ExpenseListTab groupId={groupId!} currency={group.currency} isAdmin={isAdmin} />}
         {activeTab === 'balance' && <BalanceTab groupId={groupId!} />}
         {activeTab === 'budgets' && <BudgetsTab groupId={groupId!} currency={group.currency} />}
         {activeTab === 'stats' && <StatsTab groupId={groupId!} />}

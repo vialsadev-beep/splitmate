@@ -11,16 +11,17 @@ interface Props {
   expense: ExpenseResponse
   groupId: string
   currency: string
+  isAdmin?: boolean
 }
 
-export function ExpenseCard({ expense, groupId, currency }: Props) {
+export function ExpenseCard({ expense, groupId, currency, isAdmin = false }: Props) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuth()
   const deleteExpense = useDeleteExpense(groupId)
   const uploadReceipt = useUploadReceipt(groupId, expense.id)
   const receiptInputRef = useRef<HTMLInputElement>(null)
-  const canEdit = expense.payer.id === user?.id
+  const canEdit = expense.payer.id === user?.id || isAdmin
 
   const myShare = expense.myShare ? parseFloat(expense.myShare) : null
   const isPayer = expense.payer.id === user?.id

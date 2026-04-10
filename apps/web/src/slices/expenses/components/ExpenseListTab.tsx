@@ -12,9 +12,10 @@ import { cn } from '@/shared/utils/cn'
 interface Props {
   groupId: string
   currency: string
+  isAdmin?: boolean
 }
 
-export function ExpenseListTab({ groupId, currency }: Props) {
+export function ExpenseListTab({ groupId, currency, isAdmin = false }: Props) {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
@@ -99,7 +100,7 @@ export function ExpenseListTab({ groupId, currency }: Props) {
       ) : (
         <div className={cn('space-y-2 transition-opacity', isFetching && 'opacity-60')}>
           {expenses.map((expense) => (
-            <ExpenseCard key={expense.id} expense={expense} groupId={groupId} currency={currency} />
+            <ExpenseCard key={expense.id} expense={expense} groupId={groupId} currency={currency} isAdmin={isAdmin} />
           ))}
           {data?.meta && data.meta.total > expenses.length && (
             <p className="text-center text-xs text-muted-foreground py-2">

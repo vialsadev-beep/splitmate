@@ -68,7 +68,7 @@ export default function CreateExpensePage() {
           <label className="text-sm font-medium text-foreground">{t('expenses.description')}</label>
           <input
             {...register('title')}
-            placeholder="Cena, taxi, supermercado..."
+            placeholder={t('expenses.descriptionPlaceholder')}
             className={cn(inputClass, errors.title && 'border-destructive')}
             autoFocus
           />
@@ -104,7 +104,7 @@ export default function CreateExpensePage() {
           >
             {members.map((m) => (
               <option key={m.userId} value={m.userId}>
-                {m.userId === user?.id ? `${m.name} (tú)` : m.name}
+                {m.userId === user?.id ? `${m.name} (${t('groups.you')})` : m.name}
               </option>
             ))}
           </select>
@@ -164,7 +164,7 @@ export default function CreateExpensePage() {
           </label>
           <input
             {...register('notes')}
-            placeholder="Añade una nota..."
+            placeholder={t('expenses.notesPlaceholder')}
             className={inputClass}
           />
         </div>

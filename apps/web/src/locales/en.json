@@ -97,7 +97,10 @@
     "searchEmptyDesc": "No expenses found for \"{{query}}\"",
     "showingOf": "Showing {{count}} of {{total}}",
     "export": "Export CSV",
-    "attachReceipt": "Attach receipt"
+    "attachReceipt": "Attach receipt",
+    "notFound": "Expense not found",
+    "descriptionPlaceholder": "Dinner, taxi, groceries...",
+    "notesPlaceholder": "Add a note..."
   },
   "balances": {
     "title": "Balance",

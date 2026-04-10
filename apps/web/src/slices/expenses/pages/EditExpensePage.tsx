@@ -89,7 +89,7 @@ export default function EditExpensePage() {
 
   if (!expense) return (
     <div className="py-10 text-center text-muted-foreground">
-      Gasto no encontrado
+      {t('expenses.notFound')}
     </div>
   )
 
@@ -106,7 +106,7 @@ export default function EditExpensePage() {
           <label className="text-sm font-medium text-foreground">{t('expenses.description')}</label>
           <input
             {...register('title')}
-            placeholder="Cena, taxi, supermercado..."
+            placeholder={t('expenses.descriptionPlaceholder')}
             className={cn(inputClass, errors.title && 'border-destructive')}
             autoFocus
           />
@@ -139,7 +139,7 @@ export default function EditExpensePage() {
           <select {...register('payerId')} className={inputClass}>
             {members.map((m) => (
               <option key={m.userId} value={m.userId}>
-                {m.userId === user?.id ? `${m.name} (tú)` : m.name}
+                {m.userId === user?.id ? `${m.name} (${t('groups.you')})` : m.name}
               </option>
             ))}
           </select>
@@ -199,7 +199,7 @@ export default function EditExpensePage() {
           </label>
           <input
             {...register('notes')}
-            placeholder="Añade una nota..."
+            placeholder={t('expenses.notesPlaceholder')}
             className={inputClass}
           />
         </div>

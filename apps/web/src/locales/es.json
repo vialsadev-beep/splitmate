@@ -97,7 +97,10 @@
     "searchEmptyDesc": "No se encontraron gastos para \"{{query}}\"",
     "showingOf": "Mostrando {{count}} de {{total}}",
     "export": "Exportar CSV",
-    "attachReceipt": "Adjuntar ticket"
+    "attachReceipt": "Adjuntar ticket",
+    "notFound": "Gasto no encontrado",
+    "descriptionPlaceholder": "Cena, taxi, supermercado...",
+    "notesPlaceholder": "Añade una nota..."
   },
   "balances": {
     "title": "Balance",

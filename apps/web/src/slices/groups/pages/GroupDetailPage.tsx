@@ -83,7 +83,7 @@ export default function GroupDetailPage() {
 
       {/* Contenido de tabs */}
       <div>
-        {activeTab === 'expenses' && <ExpenseListTab groupId={groupId!} currency={group.currency} isAdmin={isAdmin} />}
+        {activeTab === 'expenses' && <ExpenseListTab groupId={groupId!} currency={group.currency} isAdmin={isAdmin} members={group.members.map((m) => ({ userId: m.userId, name: m.name }))} />}
         {activeTab === 'balance' && <BalanceTab groupId={groupId!} />}
         {activeTab === 'budgets' && <BudgetsTab groupId={groupId!} currency={group.currency} />}
         {activeTab === 'stats' && <StatsTab groupId={groupId!} />}

@@ -263,7 +263,15 @@
     "autoDetect": "Detección automática con IA",
     "addManual": "Añadir producto manualmente",
     "unassigned": "{{count}} sin asignar",
-    "unassignedHint": "no se incluirán en el gasto"
+    "unassignedHint": "no se incluirán en el gasto",
+    "assignLater": "Cada miembro puede abrir el gasto y marcar sus productos desde su móvil",
+    "assignedProgress": "{{assigned}} de {{total}} asignados",
+    "saveAssignment": "Guardar lo mío",
+    "myTotal": "Mi parte",
+    "lock": "Bloquear (solo mío)",
+    "unlock": "Desbloquear",
+    "lockedByOther": "Bloqueado",
+    "lockedCannotEdit": "Bloqueado por otro miembro"
   },
   "errors": {
     "required": "Este campo es requerido",

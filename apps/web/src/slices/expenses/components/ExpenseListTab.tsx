@@ -13,9 +13,10 @@ interface Props {
   groupId: string
   currency: string
   isAdmin?: boolean
+  members?: { userId: string; name: string }[]
 }
 
-export function ExpenseListTab({ groupId, currency, isAdmin = false }: Props) {
+export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [] }: Props) {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
@@ -100,7 +101,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false }: Props) {
       ) : (
         <div className={cn('space-y-2 transition-opacity', isFetching && 'opacity-60')}>
           {expenses.map((expense) => (
-            <ExpenseCard key={expense.id} expense={expense} groupId={groupId} currency={currency} isAdmin={isAdmin} />
+            <ExpenseCard key={expense.id} expense={expense} groupId={groupId} currency={currency} isAdmin={isAdmin} members={members} />
           ))}
           {data?.meta && data.meta.total > expenses.length && (
             <p className="text-center text-xs text-muted-foreground py-2">

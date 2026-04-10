@@ -1,10 +1,11 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pencil, Trash2, Paperclip } from 'lucide-react'
+import { Pencil, Trash2, Paperclip, ScanLine } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { formatCurrency, formatRelativeDate, cn } from '@/shared/utils'
 import { useDeleteExpense, useUploadReceipt } from '../api/expenses.queries'
 import { useAuth } from '@/shared/hooks/useAuth'
+import { ReceiptItemsSheet } from './ReceiptItemsSheet'
 import type { ExpenseResponse } from '@splitmate/shared'
 
 interface Props {
@@ -12,16 +13,19 @@ interface Props {
   groupId: string
   currency: string
   isAdmin?: boolean
+  members?: { userId: string; name: string }[]
 }
 
-export function ExpenseCard({ expense, groupId, currency, isAdmin = false }: Props) {
+export function ExpenseCard({ expense, groupId, currency, isAdmin = false, members = [] }: Props) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user } = useAuth()
   const deleteExpense = useDeleteExpense(groupId)
   const uploadReceipt = useUploadReceipt(groupId, expense.id)
   const receiptInputRef = useRef<HTMLInputElement>(null)
+  const [showReceiptSheet, setShowReceiptSheet] = useState(false)
   const canEdit = expense.payer.id === user?.id || isAdmin
+  const hasReceiptItems = expense.receiptItems && expense.receiptItems.length > 0
 
   const myShare = expense.myShare ? parseFloat(expense.myShare) : null
   const isPayer = expense.payer.id === user?.id
@@ -47,21 +51,27 @@ export function ExpenseCard({ expense, groupId, currency, isAdmin = false }: Pro
       <div className="flex items-center gap-3 p-3.5">
         {/* Category emoji / receipt thumbnail */}
         <button
-          onClick={() => expense.receiptUrl && window.open(expense.receiptUrl, '_blank')}
+          onClick={() => {
+            if (hasReceiptItems) setShowReceiptSheet(true)
+            else if (expense.receiptUrl) window.open(expense.receiptUrl, '_blank')
+          }}
           className={cn(
-            'w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 overflow-hidden',
-            expense.receiptUrl ? 'cursor-pointer' : 'bg-accent cursor-default',
+            'w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 overflow-hidden relative',
+            (hasReceiptItems || expense.receiptUrl) ? 'cursor-pointer' : 'bg-accent cursor-default',
           )}
-          disabled={!expense.receiptUrl}
         >
           {expense.receiptUrl ? (
-            <img
-              src={expense.receiptUrl}
-              alt="ticket"
-              className="w-full h-full object-cover"
-            />
+            <img src={expense.receiptUrl} alt="ticket" className="w-full h-full object-cover" />
+          ) : hasReceiptItems ? (
+            <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+              <ScanLine className="h-5 w-5 text-primary" />
+            </div>
           ) : (
             expense.category?.emoji ?? '💸'
+          )}
+          {/* Badge de items pendientes */}
+          {hasReceiptItems && expense.receiptItems!.some((i) => i.memberIds.length === 0) && (
+            <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-400 border border-background" />
           )}
         </button>
 
@@ -126,6 +136,15 @@ export function ExpenseCard({ expense, groupId, currency, isAdmin = false }: Pro
         className="hidden"
         onChange={handleReceiptChange}
       />
+
+      {showReceiptSheet && hasReceiptItems && (
+        <ReceiptItemsSheet
+          expense={expense}
+          groupId={groupId}
+          members={members}
+          onClose={() => setShowReceiptSheet(false)}
+        />
+      )}
     </div>
   )
 }

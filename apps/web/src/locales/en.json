@@ -263,7 +263,15 @@
     "autoDetect": "Auto-detect with AI",
     "addManual": "Add item manually",
     "unassigned": "{{count}} unassigned",
-    "unassignedHint": "won't be included in the expense"
+    "unassignedHint": "won't be included in the expense",
+    "assignLater": "Each member can open the expense and mark their items from their phone",
+    "assignedProgress": "{{assigned}} of {{total}} assigned",
+    "saveAssignment": "Save my items",
+    "myTotal": "My share",
+    "lock": "Lock (mine only)",
+    "unlock": "Unlock",
+    "lockedByOther": "Locked",
+    "lockedCannotEdit": "Locked by another member"
   },
   "errors": {
     "required": "This field is required",

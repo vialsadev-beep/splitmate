@@ -81,6 +81,19 @@ export const ExpenseSplitResponseSchema = z.object({
   isPaid: z.boolean(),
 })
 
+export const ReceiptItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  price: z.string(),
+  memberIds: z.array(z.string()),
+  locked: z.boolean(),
+  lockedBy: z.string().optional(),
+})
+
+export const UpdateReceiptItemsSchema = z.object({
+  items: z.array(ReceiptItemSchema),
+})
+
 export const ExpenseResponseSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -104,12 +117,15 @@ export const ExpenseResponseSchema = z.object({
   myShare: z.string().nullable(),
   notes: z.string().nullable(),
   receiptUrl: z.string().nullable(),
+  receiptItems: z.array(ReceiptItemSchema).nullable(),
   date: z.string(),
   createdAt: z.string(),
 })
 
 export type CreateExpenseInput = z.infer<typeof CreateExpenseSchema>
 export type UpdateExpenseInput = z.infer<typeof UpdateExpenseSchema>
+export type UpdateReceiptItemsInput = z.infer<typeof UpdateReceiptItemsSchema>
 export type SplitType = z.infer<typeof SplitTypeSchema>
 export type ExpenseResponse = z.infer<typeof ExpenseResponseSchema>
 export type ExpenseSplitResponse = z.infer<typeof ExpenseSplitResponseSchema>
+export type ReceiptItem = z.infer<typeof ReceiptItemSchema>

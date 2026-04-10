@@ -5,7 +5,7 @@ import { expensesRepository } from './expenses.repository'
 import { balancesService } from '../balances/balances.service'
 import { checkDebtLimitNotifications } from '../../shared/lib/notify'
 import { getPaginationParams, buildPaginatedResponse } from '../../shared/utils/pagination'
-import type { CreateExpenseInput, UpdateExpenseInput } from '@splitmate/shared'
+import type { CreateExpenseInput, UpdateExpenseInput, ReceiptItem } from '@splitmate/shared'
 
 // ─── Helpers de cálculo ───────────────────────────────────────
 
@@ -128,6 +128,7 @@ function formatExpense(
     myShare,
     notes: expense.notes,
     receiptUrl: expense.receiptUrl ?? null,
+    receiptItems: (expense.receiptItems as ReceiptItem[] | null) ?? null,
     date: expense.date.toISOString(),
     createdAt: expense.createdAt.toISOString(),
   }
@@ -209,6 +210,7 @@ export const expensesService = {
       notes: input.notes,
       date: input.date ? new Date(input.date) : undefined,
       splits,
+      receiptItems: (input as CreateExpenseInput & { receiptItems?: ReceiptItem[] }).receiptItems ?? null,
     })
 
     // Balances cambian → invalidar caché + comprobar límite de deuda
@@ -326,6 +328,73 @@ export const expensesService = {
     })
 
     // Balances cambian → invalidar caché + comprobar límite de deuda
+    await balancesService.invalidateCache(groupId)
+    void checkDebtLimitNotifications(groupId)
+
+    return formatExpense(updated, requesterId)
+  },
+
+  async updateReceiptItems(groupId: string, expenseId: string, items: ReceiptItem[], requesterId: string) {
+    const expense = await expensesRepository.findById(expenseId, groupId)
+    if (!expense) throw AppError.notFound('Gasto no encontrado')
+
+    const currentItems = (expense.receiptItems as ReceiptItem[] | null) ?? []
+
+    // Validar bloqueos: si un item está bloqueado por otro usuario, no se puede modificar
+    for (const newItem of items) {
+      const current = currentItems.find((i) => i.id === newItem.id)
+      if (!current) continue
+      if (current.locked && current.lockedBy && current.lockedBy !== requesterId) {
+        // Proteger: restaurar el item original bloqueado
+        const idx = items.findIndex((i) => i.id === newItem.id)
+        items[idx] = current
+      }
+    }
+
+    // Recalcular splits basados en los items asignados
+    // Payer absorbe los items sin asignar
+    const memberTotals: Record<string, number> = {}
+    for (const item of items) {
+      const price = parseFloat(item.price)
+      if (item.memberIds.length === 0) {
+        // Sin asignar → al payer
+        memberTotals[expense.payerId] = (memberTotals[expense.payerId] ?? 0) + price
+      } else {
+        const share = price / item.memberIds.length
+        for (const uid of item.memberIds) {
+          memberTotals[uid] = (memberTotals[uid] ?? 0) + share
+        }
+      }
+    }
+
+    const assignedTotal = Object.values(memberTotals).reduce((a, b) => a + b, 0)
+    const newAmount = new Decimal(assignedTotal.toFixed(2))
+
+    const rawSplits = Object.entries(memberTotals).map(([userId, amt]) => ({
+      userId,
+      amount: new Decimal(amt.toFixed(2)),
+      isPaid: userId === expense.payerId,
+    }))
+
+    // Ajustar residuo de redondeo al payer
+    const splitSum = rawSplits.reduce((s, sp) => s + parseFloat(sp.amount.toFixed(2)), 0)
+    const residual = parseFloat((assignedTotal - splitSum).toFixed(2))
+    const payerSplit = rawSplits.find((s) => s.userId === expense.payerId)
+    if (residual !== 0) {
+      if (payerSplit) {
+        payerSplit.amount = new Decimal((parseFloat(payerSplit.amount.toFixed(2)) + residual).toFixed(2))
+      } else if (rawSplits.length > 0) {
+        rawSplits[0].amount = new Decimal((parseFloat(rawSplits[0].amount.toFixed(2)) + residual).toFixed(2))
+      }
+    }
+
+    const updated = await expensesRepository.update(expenseId, {
+      receiptItems: items,
+      amount: newAmount,
+      splitType: 'EXACT',
+      splits: rawSplits.length > 0 ? rawSplits : undefined,
+    })
+
     await balancesService.invalidateCache(groupId)
     void checkDebtLimitNotifications(groupId)
 

@@ -6,7 +6,8 @@ import { expensesHandler } from './expenses.handler'
 import { uploadMiddleware } from '../../shared/middleware/upload'
 import { prisma } from '../../shared/lib/prisma'
 import { AppError } from '../../shared/errors/AppError'
-import { CreateExpenseSchema, UpdateExpenseSchema } from '@splitmate/shared'
+import { CreateExpenseSchema, UpdateExpenseSchema, UpdateReceiptItemsSchema } from '@splitmate/shared'
+import { expensesService } from './expenses.service'
 
 // Este router se monta en /api/v1/groups/:groupId/expenses
 // Express no pasa params del padre por defecto → mergeParams: true
@@ -20,6 +21,18 @@ expensesRouter.post('/', validate(CreateExpenseSchema), expensesHandler.createEx
 expensesRouter.get('/:expenseId', expensesHandler.getExpenseById)
 expensesRouter.patch('/:expenseId', validate(UpdateExpenseSchema), expensesHandler.updateExpense)
 expensesRouter.delete('/:expenseId', expensesHandler.deleteExpense)
+
+// PATCH /groups/:groupId/expenses/:expenseId/receipt-items — actualizar items del ticket
+expensesRouter.patch(
+  '/:expenseId/receipt-items',
+  validate(UpdateReceiptItemsSchema),
+  async (req: Request<{ groupId: string; expenseId: string }>, res: Response) => {
+    const { groupId, expenseId } = req.params
+    const { items } = req.body as { items: import('@splitmate/shared').ReceiptItem[] }
+    const result = await expensesService.updateReceiptItems(groupId, expenseId, items, req.user!.userId)
+    res.json({ data: result })
+  },
+)
 
 // POST /groups/:groupId/expenses/:expenseId/receipt — subir foto del ticket
 expensesRouter.post(

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/lib/api-client'
-import type { CreateExpenseInput, UpdateExpenseInput, ExpenseResponse } from '@splitmate/shared'
+import type { CreateExpenseInput, UpdateExpenseInput, ExpenseResponse, ReceiptItem } from '@splitmate/shared'
 
 interface PaginatedExpenses {
   data: ExpenseResponse[]
@@ -83,6 +83,23 @@ export function useDeleteExpense(groupId: string) {
       qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
       qc.invalidateQueries({ queryKey: ['activity', groupId] })
+    },
+  })
+}
+
+export function useUpdateReceiptItems(groupId: string, expenseId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (items: ReceiptItem[]) => {
+      const res = await apiClient.patch<{ data: ExpenseResponse }>(
+        `/groups/${groupId}/expenses/${expenseId}/receipt-items`,
+        { items },
+      )
+      return res.data.data
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['expenses', groupId] })
+      qc.invalidateQueries({ queryKey: ['balances', groupId] })
     },
   })
 }

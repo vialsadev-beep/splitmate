@@ -262,7 +262,8 @@
     "parseError": "Error al analizar el ticket. Inténtalo de nuevo",
     "autoDetect": "Detección automática con IA",
     "addManual": "Añadir producto manualmente",
-    "unassigned": "{{count}} sin asignar"
+    "unassigned": "{{count}} sin asignar",
+    "unassignedHint": "no se incluirán en el gasto"
   },
   "errors": {
     "required": "Este campo es requerido",

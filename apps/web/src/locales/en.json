@@ -262,7 +262,8 @@
     "parseError": "Error analyzing the receipt. Please try again",
     "autoDetect": "Auto-detect with AI",
     "addManual": "Add item manually",
-    "unassigned": "{{count}} unassigned"
+    "unassigned": "{{count}} unassigned",
+    "unassignedHint": "won't be included in the expense"
   },
   "errors": {
     "required": "This field is required",

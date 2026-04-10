@@ -176,7 +176,10 @@ export default function ReceiptSplitterPage() {
     }
   }
 
-  const totalAmount = items.reduce((sum, item) => sum + parseFloat(item.price || '0'), 0)
+  // Solo los items asignados cuentan para el gasto
+  const assignedTotal = items
+    .filter((item) => item.memberIds.length > 0)
+    .reduce((sum, item) => sum + parseFloat(item.price || '0'), 0)
   const activeMemberIds = members.filter((m) => memberTotals[m.userId] > 0).map((m) => m.userId)
   const unassignedItems = items.filter((item) => item.memberIds.length === 0)
 
@@ -188,9 +191,9 @@ export default function ReceiptSplitterPage() {
       amount: memberTotals[uid].toFixed(2),
     }))
 
-    // Ajustar residuo de redondeo
+    // Ajustar residuo de redondeo sobre el total asignado
     const splitSum = rawSplits.reduce((s, sp) => s + parseFloat(sp.amount), 0)
-    const residual = parseFloat((totalAmount - splitSum).toFixed(2))
+    const residual = parseFloat((assignedTotal - splitSum).toFixed(2))
     if (residual !== 0 && rawSplits.length > 0) {
       rawSplits[0].amount = (parseFloat(rawSplits[0].amount) + residual).toFixed(2)
     }
@@ -198,7 +201,7 @@ export default function ReceiptSplitterPage() {
     try {
       await createExpense.mutateAsync({
         title: expenseTitle.trim(),
-        amount: totalAmount.toFixed(2),
+        amount: assignedTotal.toFixed(2),
         payerId,
         splitType: 'EXACT',
         splits: rawSplits,
@@ -212,7 +215,7 @@ export default function ReceiptSplitterPage() {
 
   if (isLoading) return <PageLoader />
 
-  const canSubmit = expenseTitle.trim() && items.length > 0 && activeMemberIds.length > 0 && unassignedItems.length === 0
+  const canSubmit = expenseTitle.trim() && items.length > 0 && activeMemberIds.length > 0
 
   return (
     <div className="space-y-4 pb-24">
@@ -331,13 +334,14 @@ export default function ReceiptSplitterPage() {
             <h3 className="text-sm font-semibold text-foreground">{t('receipt.items')}</h3>
             {unassignedItems.length > 0 && (
               <span className="text-xs text-amber-500 font-medium">
-                {t('receipt.unassigned', { count: unassignedItems.length })}
+                {t('receipt.unassigned', { count: unassignedItems.length })} — {t('receipt.unassignedHint')}
               </span>
             )}
           </div>
 
           {items.map((item) => {
             const unassigned = item.memberIds.length === 0
+            const assigned = !unassigned
             const sharePerPerson = item.memberIds.length > 0
               ? (parseFloat(item.price || '0') / item.memberIds.length).toFixed(2)
               : null
@@ -347,7 +351,9 @@ export default function ReceiptSplitterPage() {
                 key={item.id}
                 className={cn(
                   'rounded-xl border bg-card p-3 space-y-2.5 transition-colors',
-                  unassigned ? 'border-amber-300/60 bg-amber-50/30 dark:bg-amber-950/10' : 'border-border',
+                  unassigned
+                    ? 'border-amber-300/60 bg-amber-50/30 dark:bg-amber-950/10'
+                    : 'border-green-300/50 bg-green-50/20 dark:bg-green-950/10',
                 )}
               >
                 {/* Nombre + precio + borrar */}
@@ -358,6 +364,7 @@ export default function ReceiptSplitterPage() {
                     className={cn(
                       'flex-1 px-2.5 py-1.5 rounded-lg border border-input bg-background text-sm text-foreground',
                       'focus:outline-none focus:ring-2 focus:ring-primary transition-colors',
+                      assigned && 'line-through text-muted-foreground',
                     )}
                   />
                   <div className="relative w-24 flex-shrink-0">
@@ -368,8 +375,9 @@ export default function ReceiptSplitterPage() {
                       value={item.price}
                       onChange={(e) => updateItemPrice(item.id, e.target.value)}
                       className={cn(
-                        'w-full pl-2 pr-2 py-1.5 rounded-lg border border-input bg-background text-sm text-foreground text-right',
+                        'w-full pl-2 pr-2 py-1.5 rounded-lg border border-input bg-background text-sm text-right',
                         'focus:outline-none focus:ring-2 focus:ring-primary transition-colors',
+                        assigned ? 'text-muted-foreground line-through' : 'text-foreground',
                       )}
                     />
                   </div>
@@ -510,7 +518,7 @@ export default function ReceiptSplitterPage() {
           <div className="pt-2 border-t border-border flex items-center justify-between">
             <span className="text-sm font-semibold text-foreground">{t('expenses.total')}</span>
             <span className="text-sm font-bold text-foreground">
-              {totalAmount.toFixed(2)} {group?.currency}
+              {assignedTotal.toFixed(2)} {group?.currency}
             </span>
           </div>
         </div>

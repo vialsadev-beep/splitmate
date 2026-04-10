@@ -1,14 +1,26 @@
 import { Router } from 'express'
+import multer from 'multer'
 import Anthropic from '@anthropic-ai/sdk'
 import { authenticate } from '../../shared/middleware/authenticate'
-import { uploadMiddleware } from '../../shared/middleware/upload'
 import { AppError } from '../../shared/errors/AppError'
 import { env } from '../../config/env'
-import fs from 'fs'
 
 export const receiptRouter = Router()
 
 receiptRouter.use(authenticate)
+
+// Memoria en vez de disco — no depende de que exista el directorio uploads/
+const memoryUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (['image/jpeg', 'image/png', 'image/webp'].includes(file.mimetype)) {
+      cb(null, true)
+    } else {
+      cb(AppError.badRequest('Solo se permiten imágenes JPEG, PNG o WebP') as unknown as null, false)
+    }
+  },
+})
 
 const SYSTEM_PROMPT = `Eres un asistente especializado en leer tickets de compra y facturas.
 Tu tarea es extraer todos los productos/artículos con sus precios del ticket.
@@ -31,7 +43,7 @@ Reglas:
 
 receiptRouter.post(
   '/parse',
-  uploadMiddleware.single('receipt'),
+  memoryUpload.single('receipt'),
   async (req, res) => {
     if (!env.ANTHROPIC_API_KEY) {
       throw AppError.badRequest('OCR no configurado en este servidor')
@@ -41,12 +53,8 @@ receiptRouter.post(
       throw AppError.badRequest('No se adjuntó ninguna imagen')
     }
 
-    const imageData = fs.readFileSync(req.file.path)
-    const base64 = imageData.toString('base64')
+    const base64 = req.file.buffer.toString('base64')
     const mimeType = req.file.mimetype as 'image/jpeg' | 'image/png' | 'image/webp'
-
-    // Limpiar archivo temporal después de leer
-    fs.unlink(req.file.path, () => {})
 
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
 

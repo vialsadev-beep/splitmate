@@ -14,6 +14,7 @@
 | 2 | MVP | App funcional de extremo a extremo | ✅ Completada |
 | 3 | Hardening | Calidad, seguridad y performance | ✅ Completada |
 | 4 | Mejoras | Features post-MVP | ✅ Completada |
+| 5 | QA & Polish | Revisión exhaustiva en producción | ✅ Completada |
 
 ---
 
@@ -220,5 +221,6 @@
 | 2026-04-08 | Fase 3 completada (Hardening: tests, seguridad, Redis, CI/CD, deploy) |
 | 2026-04-09 | Fase 4 completada — alta + media prioridad (10 features, revisión de seguridad) |
 | 2026-04-09 | API desplegada en Railway (PostgreSQL + Redis + API service) |
+| 2026-04-10 | Fase 5 — QA y polish: 10 bugs corregidos, i18n completado, categorías seeded en prod |
 
 *Mantenido por: PM + ORC. Actualizar al inicio de cada fase.*

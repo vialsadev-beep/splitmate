@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { createWorker } from 'tesseract.js'
 import { Plus, Trash2, Camera, ChevronDown, ChevronUp, X, Sparkles, Loader2, AlertCircle } from 'lucide-react'
 import { useGroup } from '@/slices/groups/api/groups.queries'
 import { useCreateExpense } from '../api/expenses.queries'
-import { apiClient } from '@/shared/lib/api-client'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { PageLoader } from '@/shared/components/LoadingSpinner'
 import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
@@ -20,6 +20,30 @@ interface LineItem {
 interface ParsedItem {
   name: string
   price: string
+}
+
+const SKIP_RE = /total|subtotal|iva|imp\.?|desc\.?|dcto|entrega|cambio|tarjeta|efectivo|ticket|factura|gracias|fecha|hora|cif|nif|unidades?|cantidad|pvp|operador|cajero|visita|num\.|n[oº]\.?/i
+const PRICE_RE = /(\d{1,4}[.,]\d{2})\s*[€$]?\s*(?:[A-Z*]|\*|=)?\s*$/
+
+function parseReceiptText(text: string): ParsedItem[] {
+  const items: ParsedItem[] = []
+  for (const rawLine of text.split('\n')) {
+    const line = rawLine.trim()
+    if (!line || line.length < 3 || SKIP_RE.test(line)) continue
+    const priceMatch = line.match(PRICE_RE)
+    if (!priceMatch) continue
+    const price = parseFloat(priceMatch[1].replace(',', '.'))
+    if (price <= 0 || price > 500) continue
+    const name = line.slice(0, line.lastIndexOf(priceMatch[0]))
+      .trim()
+      .replace(/\s+/g, ' ')
+      .replace(/^\d+\s+/, '')
+      .replace(/[*#@|]+/g, '')
+      .trim()
+    if (name.length < 2) continue
+    items.push({ name, price: price.toFixed(2) })
+  }
+  return items
 }
 
 export default function ReceiptSplitterPage() {
@@ -73,28 +97,23 @@ export default function ReceiptSplitterPage() {
     setParsing(true)
     setParseError(null)
     try {
-      const form = new FormData()
-      form.append('receipt', file)
-      const res = await apiClient.post<{ data: { items: ParsedItem[]; currency?: string } }>(
-        '/receipt/parse',
-        form,
-        { headers: { 'Content-Type': 'multipart/form-data' } },
-      )
-      const parsed = res.data.data.items ?? []
+      const worker = await createWorker('spa+eng')
+      const { data: { text } } = await worker.recognize(file)
+      await worker.terminate()
+
+      const parsed = parseReceiptText(text)
       if (parsed.length === 0) {
         setParseError(t('receipt.noItemsFound'))
         return
       }
-      // Añadir items parseados (sin miembros asignados aún)
       setItems(parsed.map((item) => ({
         id: crypto.randomUUID(),
         name: item.name,
         price: item.price,
         memberIds: [],
       })))
-    } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message
-      setParseError(msg ?? t('receipt.parseError'))
+    } catch {
+      setParseError(t('receipt.parseError'))
     } finally {
       setParsing(false)
     }

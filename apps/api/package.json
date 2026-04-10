@@ -19,8 +19,8 @@
     "prisma:reset": "prisma migrate reset --force"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.87.0",
     "@prisma/client": "^5.13.0",
-    "prisma": "^5.13.0",
     "@splitmate/shared": "workspace:*",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.6",
@@ -38,6 +38,7 @@
     "passport-local": "^1.0.0",
     "pino": "^9.1.0",
     "pino-pretty": "^11.0.0",
+    "prisma": "^5.13.0",
     "rate-limit-redis": "^4.2.0",
     "zod": "^3.23.0"
   },

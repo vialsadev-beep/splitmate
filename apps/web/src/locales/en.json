@@ -256,7 +256,13 @@
     "whoOrdered": "Who ordered this?",
     "items": "Receipt items",
     "summary": "Summary",
-    "createExpense": "Create expense"
+    "createExpense": "Create expense",
+    "analyzing": "Analyzing...",
+    "noItemsFound": "No items found in the receipt",
+    "parseError": "Error analyzing the receipt. Please try again",
+    "autoDetect": "Auto-detect with AI",
+    "addManual": "Add item manually",
+    "unassigned": "{{count}} unassigned"
   },
   "errors": {
     "required": "This field is required",

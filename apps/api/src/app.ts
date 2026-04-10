@@ -21,6 +21,7 @@ import { statsRouter } from './slices/stats/stats.router'
 import { activityRouter } from './slices/activity/activity.router'
 import { budgetsRouter } from './slices/budgets/budgets.router'
 import { potRouter } from './slices/pot/pot.router'
+import { receiptRouter } from './slices/expenses/receipt.router'
 
 export const app = express()
 
@@ -81,6 +82,7 @@ app.use('/api/v1/groups/:groupId/activity', activityRouter)
 app.use('/api/v1/notifications', notificationsRouter)
 app.use('/api/v1/groups/:groupId/budgets', budgetsRouter)
 app.use('/api/v1/groups/:groupId/pot', potRouter)
+app.use('/api/v1/receipt', receiptRouter)
 
 // ─── 404 ──────────────────────────────────────────────────────
 app.use((_req, res) => res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Ruta no encontrada' } }))

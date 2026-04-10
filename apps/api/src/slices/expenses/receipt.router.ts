@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import multer from 'multer'
-import Anthropic from '@anthropic-ai/sdk'
+import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { authenticate } from '../../shared/middleware/authenticate'
 import { AppError } from '../../shared/errors/AppError'
 import { env } from '../../config/env'
@@ -58,30 +58,41 @@ receiptRouter.post(
 
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
 
-    const response = await client.messages.create({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: {
-                type: 'base64',
-                media_type: mimeType,
-                data: base64,
+    let response
+    try {
+      response = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'image',
+                source: {
+                  type: 'base64',
+                  media_type: mimeType,
+                  data: base64,
+                },
               },
-            },
-            {
-              type: 'text',
-              text: 'Extrae todos los productos y precios de este ticket.',
-            },
-          ],
-        },
-      ],
-      system: SYSTEM_PROMPT,
-    })
+              {
+                type: 'text',
+                text: 'Extrae todos los productos y precios de este ticket.',
+              },
+            ],
+          },
+        ],
+        system: SYSTEM_PROMPT,
+      })
+    } catch (err) {
+      if (err instanceof APIError) {
+        const msg = err.status === 400 && err.message.includes('credit')
+          ? 'Sin créditos en la cuenta de Anthropic. Añade créditos en console.anthropic.com'
+          : `Error de la API de IA: ${err.message}`
+        throw AppError.badRequest(msg)
+      }
+      throw err
+    }
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
 

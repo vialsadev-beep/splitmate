@@ -4,6 +4,7 @@ import { LogOut, Moon, Sun, Monitor, Globe, ExternalLink } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useLogout, useUpdateProfile } from '@/slices/auth/api/auth.queries'
+import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
 import { cn } from '@/shared/utils/cn'
 import i18n from '@/shared/lib/i18n'
 
@@ -30,9 +31,13 @@ export default function ProfilePage() {
   const [paypalSaved, setPaypalSaved] = useState(false)
 
   async function handleSavePaypal() {
-    await updateProfile.mutateAsync({ paypalMe: paypalMe.trim() || null })
-    setPaypalSaved(true)
-    setTimeout(() => setPaypalSaved(false), 2000)
+    try {
+      await updateProfile.mutateAsync({ paypalMe: paypalMe.trim() || null })
+      setPaypalSaved(true)
+      setTimeout(() => setPaypalSaved(false), 2000)
+    } catch {
+      // error shown via updateProfile.error
+    }
   }
 
   async function handleLogout() {
@@ -130,6 +135,9 @@ export default function ProfilePage() {
             <ExternalLink className="h-3 w-3" />
             {t('profile.paypalFindUsername')}
           </a>
+          {updateProfile.error && (
+            <ApiErrorMessage error={updateProfile.error} fallback="Error al guardar" />
+          )}
           <div className="flex gap-2">
             <div className="flex-1 flex items-center rounded-xl border border-input bg-background overflow-hidden">
               <span className="px-3 text-sm text-muted-foreground flex-shrink-0">paypal.me/</span>

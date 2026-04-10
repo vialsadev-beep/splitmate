@@ -3,6 +3,7 @@ import { X, ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSettleDebt } from '../api/balances.queries'
 import { formatCurrency, cn } from '@/shared/utils'
+import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
 import type { SimplifiedDebt } from '@splitmate/shared'
 
 interface Props {
@@ -18,13 +19,17 @@ export function SettleModal({ debt, groupId, currency, onClose }: Props) {
   const [notes, setNotes] = useState('')
 
   async function handleSettle() {
-    await settle.mutateAsync({
-      senderId: debt.from.id,
-      receiverId: debt.to.id,
-      amount: debt.amount,
-      notes: notes || undefined,
-    })
-    onClose()
+    try {
+      await settle.mutateAsync({
+        senderId: debt.from.id,
+        receiverId: debt.to.id,
+        amount: debt.amount,
+        notes: notes || undefined,
+      })
+      onClose()
+    } catch {
+      // error shown below via settle.error
+    }
   }
 
   return (
@@ -46,7 +51,7 @@ export function SettleModal({ debt, groupId, currency, onClose }: Props) {
             {formatCurrency(debt.amount, currency)}
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            a {debt.to.name}
+            {t('balances.settleWith', { name: debt.to.name })}
           </p>
         </div>
 
@@ -74,6 +79,10 @@ export function SettleModal({ debt, groupId, currency, onClose }: Props) {
             <ExternalLink className="h-4 w-4" />
             {t('balances.payWithPayPal')}
           </a>
+        )}
+
+        {settle.error && (
+          <ApiErrorMessage error={settle.error} fallback="Error al registrar el pago" />
         )}
 
         <div className="flex gap-2">

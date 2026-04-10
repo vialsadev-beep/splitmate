@@ -8,6 +8,7 @@ function makeBalance(id: string, balance: string): UserNetBalance {
     userId: id,
     name: `User ${id}`,
     avatarUrl: null,
+    paypalMe: null,
     balance: new Decimal(balance),
   }
 }

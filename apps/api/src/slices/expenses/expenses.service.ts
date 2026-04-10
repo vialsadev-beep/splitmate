@@ -179,12 +179,18 @@ export const expensesService = {
     const group = await prisma.group.findUnique({ where: { id: groupId } })
     if (!group) throw AppError.notFound('Grupo no encontrado')
 
-    const splits = calculateSplits(amount, input.payerId, input.splitType, input)
-
-    // Verificar que todos los participantes son del grupo
+    // Obtener miembros activos del grupo (necesario para EQUAL sin participantIds y para validación)
     const memberIds = await prisma.groupMember
       .findMany({ where: { groupId, leftAt: null }, select: { userId: true } })
       .then((m) => m.map((x) => x.userId))
+
+    // Para EQUAL sin participantIds explícito, usar todos los miembros activos
+    const resolvedInput: CreateExpenseInput =
+      input.splitType === 'EQUAL' && (!input.participantIds || input.participantIds.length === 0)
+        ? { ...input, participantIds: memberIds }
+        : input
+
+    const splits = calculateSplits(amount, input.payerId, input.splitType, resolvedInput)
 
     for (const split of splits) {
       if (!memberIds.includes(split.userId)) {

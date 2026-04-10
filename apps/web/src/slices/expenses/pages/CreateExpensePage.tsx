@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -32,6 +33,13 @@ export default function CreateExpensePage() {
 
   const splitType = useWatch({ control, name: 'splitType' })
   const members = group?.members ?? []
+
+  // Cuando el grupo carga, inicializar participantIds con todos los miembros
+  useEffect(() => {
+    if (group?.members && group.members.length > 0) {
+      setValue('participantIds', group.members.map((m) => m.userId))
+    }
+  }, [group?.members, setValue])
 
   async function onSubmit(data: CreateExpenseInput) {
     try {

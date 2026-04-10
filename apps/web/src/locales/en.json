@@ -36,7 +36,9 @@
     "forgotPassword": "Forgot password?",
     "welcome": "Welcome to SplitMate",
     "tagline": "The simplest way to manage shared expenses",
-    "logoutConfirm": "Are you sure you want to log out?"
+    "logoutConfirm": "Are you sure you want to log out?",
+    "namePlaceholder": "Your name",
+    "passwordPlaceholder": "Min. 8 characters"
   },
   "groups": {
     "title": "My groups",
@@ -66,7 +68,10 @@
     "groupAvatarDesc": "JPEG, PNG or WebP · max 5 MB",
     "debtLimit": "Debt limit",
     "debtLimitDesc": "Notify members when their debt exceeds this amount",
-    "debtLimitPlaceholder": "No limit"
+    "debtLimitPlaceholder": "No limit",
+    "namePlaceholder": "Portugal trip, Shared apartment...",
+    "descriptionPlaceholder": "September 2026...",
+    "subtitle": "Set up your group details"
   },
   "expenses": {
     "title": "Expenses",
@@ -128,7 +133,8 @@
     "to": "To",
     "date": "Date",
     "delete": "Delete payment",
-    "deleteConfirm": "Delete this payment?"
+    "deleteConfirm": "Delete this payment?",
+    "notesPlaceholder": "Venmo, cash..."
   },
   "notifications": {
     "title": "Notifications",

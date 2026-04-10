@@ -36,7 +36,9 @@
     "forgotPassword": "¿Olvidaste tu contraseña?",
     "welcome": "Bienvenido a SplitMate",
     "tagline": "La forma más simple de gestionar gastos compartidos",
-    "logoutConfirm": "¿Seguro que quieres cerrar sesión?"
+    "logoutConfirm": "¿Seguro que quieres cerrar sesión?",
+    "namePlaceholder": "Tu nombre",
+    "passwordPlaceholder": "Mín. 8 caracteres"
   },
   "groups": {
     "title": "Mis grupos",
@@ -66,7 +68,10 @@
     "groupAvatarDesc": "JPEG, PNG o WebP · máx. 5 MB",
     "debtLimit": "Límite de deuda",
     "debtLimitDesc": "Notifica a los miembros cuando su deuda supere este importe",
-    "debtLimitPlaceholder": "Sin límite"
+    "debtLimitPlaceholder": "Sin límite",
+    "namePlaceholder": "Viaje a Lisboa, Piso compartido...",
+    "descriptionPlaceholder": "Septiembre 2026...",
+    "subtitle": "Configura los datos del grupo"
   },
   "expenses": {
     "title": "Gastos",
@@ -128,7 +133,8 @@
     "to": "A",
     "date": "Fecha",
     "delete": "Eliminar pago",
-    "deleteConfirm": "¿Eliminar este pago?"
+    "deleteConfirm": "¿Eliminar este pago?",
+    "notesPlaceholder": "Bizum, efectivo..."
   },
   "notifications": {
     "title": "Notificaciones",

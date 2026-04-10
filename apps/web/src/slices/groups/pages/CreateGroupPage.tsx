@@ -40,7 +40,7 @@ export default function CreateGroupPage() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">{t('groups.create')}</h2>
-        <p className="text-sm text-muted-foreground mt-1">Configura los datos del grupo</p>
+        <p className="text-sm text-muted-foreground mt-1">{t('groups.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -71,7 +71,7 @@ export default function CreateGroupPage() {
           <label className="text-sm font-medium text-foreground">{t('groups.name')}</label>
           <input
             {...register('name')}
-            placeholder="Viaje a Lisboa, Piso compartido..."
+            placeholder={t('groups.namePlaceholder')}
             className={inputClass(!!errors.name)}
           />
           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
@@ -84,7 +84,7 @@ export default function CreateGroupPage() {
           </label>
           <input
             {...register('description')}
-            placeholder="Septiembre 2026..."
+            placeholder={t('groups.descriptionPlaceholder')}
             className={inputClass(false)}
           />
         </div>

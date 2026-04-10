@@ -49,7 +49,7 @@ export default function RegisterPage() {
               type="text"
               autoComplete="name"
               className={fieldClass(!!errors.name)}
-              placeholder="Tu nombre"
+              placeholder={t('auth.namePlaceholder')}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
@@ -74,7 +74,7 @@ export default function RegisterPage() {
               type="password"
               autoComplete="new-password"
               className={fieldClass(!!errors.password)}
-              placeholder="Mín. 8 caracteres"
+              placeholder={t('auth.passwordPlaceholder')}
             />
             {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
           </div>

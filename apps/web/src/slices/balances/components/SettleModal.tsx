@@ -63,7 +63,7 @@ export function SettleModal({ debt, groupId, currency, onClose }: Props) {
           <input
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Bizum, efectivo..."
+            placeholder={t('payments.notesPlaceholder')}
             className="w-full px-3 py-2.5 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>

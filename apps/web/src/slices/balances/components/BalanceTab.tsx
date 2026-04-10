@@ -77,7 +77,7 @@ export function BalanceTab({ groupId }: Props) {
       {otherDebts.length > 0 && (
         <div className="space-y-2">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Otras deudas del grupo
+            {t('balances.otherDebts')}
           </h3>
           {otherDebts.map((debt, i) => (
             <DebtCard

@@ -112,7 +112,8 @@
     "total": "Total gastado",
     "creditor": "A tu favor",
     "debtor": "Debes",
-    "payWithPayPal": "Pagar con PayPal"
+    "payWithPayPal": "Pagar con PayPal",
+    "otherDebts": "Otras deudas del grupo"
   },
   "payments": {
     "title": "Pagos",

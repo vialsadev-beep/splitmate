@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Plus, Receipt, Scale, Users, Link as LinkIcon, BarChart2, Clock, Target } from 'lucide-react'
+import { Plus, Receipt, Scale, Users, Link as LinkIcon, BarChart2, Clock, Target, ScanLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useGroup } from '../api/groups.queries'
 import { useAuth } from '@/shared/hooks/useAuth'
@@ -61,26 +61,24 @@ export default function GroupDetailPage() {
         </button>
       </div>
 
-      {/* Tabs — deslizable en móvil */}
-      <div className="overflow-x-auto scrollbar-none -mx-4 px-4">
-        <div className="flex rounded-xl bg-muted p-1 gap-1 min-w-max sm:min-w-0">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              title={label}
-              className={cn(
-                'flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all whitespace-nowrap',
-                activeTab === id
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              <Icon className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="hidden sm:inline">{label}</span>
-            </button>
-          ))}
-        </div>
+      {/* Tabs — icono en móvil, icono+texto en sm+ */}
+      <div className="flex rounded-xl bg-muted p-1 gap-1">
+        {tabs.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setActiveTab(id)}
+            title={label}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all',
+              activeTab === id
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+            <span className="hidden sm:inline">{label}</span>
+          </button>
+        ))}
       </div>
 
       {/* Contenido de tabs */}
@@ -93,20 +91,35 @@ export default function GroupDetailPage() {
         {activeTab === 'members' && <MembersTab group={group} />}
       </div>
 
-      {/* FAB: Añadir gasto */}
+      {/* FABs: Añadir gasto + Dividir ticket */}
       {activeTab === 'expenses' && (
-        <button
-          onClick={() => navigate(`/groups/${groupId}/expenses/new`)}
-          className={cn(
-            'fixed bottom-24 right-4 z-30',
-            'w-14 h-14 rounded-2xl shadow-lg',
-            'bg-primary text-primary-foreground',
-            'flex items-center justify-center',
-            'hover:opacity-90 active:scale-95 transition-all',
-          )}
-        >
-          <Plus className="h-6 w-6" />
-        </button>
+        <div className="fixed bottom-24 right-4 z-30 flex flex-col gap-2 items-end">
+          {/* Dividir ticket */}
+          <button
+            onClick={() => navigate(`/groups/${groupId}/expenses/receipt`)}
+            className={cn(
+              'w-12 h-12 rounded-2xl shadow-md',
+              'bg-card border border-border text-foreground',
+              'flex items-center justify-center',
+              'hover:bg-accent active:scale-95 transition-all',
+            )}
+            title={t('receipt.title')}
+          >
+            <ScanLine className="h-5 w-5" />
+          </button>
+          {/* Añadir gasto manual */}
+          <button
+            onClick={() => navigate(`/groups/${groupId}/expenses/new`)}
+            className={cn(
+              'w-14 h-14 rounded-2xl shadow-lg',
+              'bg-primary text-primary-foreground',
+              'flex items-center justify-center',
+              'hover:opacity-90 active:scale-95 transition-all',
+            )}
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        </div>
       )}
 
       {showInvite && (

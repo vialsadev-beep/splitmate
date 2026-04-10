@@ -243,6 +243,21 @@
     "statusCancelled": "Cancelled",
     "confirm": "Confirm receipt"
   },
+  "receipt": {
+    "title": "Split receipt",
+    "photo": "Receipt photo",
+    "addPhoto": "Add photo",
+    "changePhoto": "Change photo",
+    "tapToAdd": "Tap to add receipt photo",
+    "titlePlaceholder": "Restaurant, supermarket...",
+    "addItem": "Add item",
+    "addLine": "Add",
+    "itemName": "Item",
+    "whoOrdered": "Who ordered this?",
+    "items": "Receipt items",
+    "summary": "Summary",
+    "createExpense": "Create expense"
+  },
   "errors": {
     "required": "This field is required",
     "invalidEmail": "Invalid email",

@@ -15,6 +15,7 @@ const CreateGroupPage = lazy(() => import('@/slices/groups/pages/CreateGroupPage
 
 const CreateExpensePage = lazy(() => import('@/slices/expenses/pages/CreateExpensePage'))
 const EditExpensePage = lazy(() => import('@/slices/expenses/pages/EditExpensePage'))
+const ReceiptSplitterPage = lazy(() => import('@/slices/expenses/pages/ReceiptSplitterPage'))
 
 const ProfilePage = lazy(() => import('@/slices/profile/pages/ProfilePage'))
 const NotificationsPage = lazy(() => import('@/slices/notifications/pages/NotificationsPage'))
@@ -50,6 +51,7 @@ export const router = createBrowserRouter([
       { path: '/groups/new', element: <S><CreateGroupPage /></S> },
       { path: '/groups/:groupId', element: <S><GroupDetailPage /></S> },
       { path: '/groups/:groupId/expenses/new', element: <S><CreateExpensePage /></S> },
+      { path: '/groups/:groupId/expenses/receipt', element: <S><ReceiptSplitterPage /></S> },
       { path: '/groups/:groupId/expenses/:expenseId/edit', element: <S><EditExpensePage /></S> },
 
       // Join group

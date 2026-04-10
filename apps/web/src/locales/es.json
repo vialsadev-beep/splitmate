@@ -243,6 +243,21 @@
     "statusCancelled": "Cancelado",
     "confirm": "Confirmar recepción"
   },
+  "receipt": {
+    "title": "Dividir ticket",
+    "photo": "Foto del ticket",
+    "addPhoto": "Añadir foto",
+    "changePhoto": "Cambiar foto",
+    "tapToAdd": "Toca para añadir foto del ticket",
+    "titlePlaceholder": "Restaurante, supermercado...",
+    "addItem": "Añadir línea",
+    "addLine": "Añadir",
+    "itemName": "Producto",
+    "whoOrdered": "¿Quién lo pidió?",
+    "items": "Líneas del ticket",
+    "summary": "Resumen",
+    "createExpense": "Crear gasto"
+  },
   "errors": {
     "required": "Este campo es requerido",
     "invalidEmail": "Email inválido",

@@ -1,10 +1,21 @@
+import { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/shared/hooks/useAuth'
+import { useMe } from '@/slices/auth/api/auth.queries'
+import { useAuthStore } from '@/slices/auth/store/auth.store'
 import { PageLoader } from '@/shared/components/LoadingSpinner'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth()
   const location = useLocation()
+  const { data: freshUser } = useMe()
+
+  useEffect(() => {
+    if (freshUser) {
+      const token = useAuthStore.getState().accessToken ?? ''
+      useAuthStore.getState().setAuth(freshUser, token)
+    }
+  }, [freshUser])
 
   if (isAuthenticated === undefined) return <PageLoader />
   if (!isAuthenticated) {

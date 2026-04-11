@@ -14,5 +14,6 @@ export function useActivityFeed(groupId: string) {
       return res.data
     },
     enabled: !!groupId,
+    staleTime: 30_000,
   })
 }

@@ -23,6 +23,7 @@ export function useSimplifiedBalance(groupId: string) {
       return res.data.data
     },
     enabled: !!groupId,
+    staleTime: 30_000,
   })
 }
 
@@ -36,6 +37,7 @@ export function useMyBalance(groupId: string) {
       return res.data.data
     },
     enabled: !!groupId,
+    staleTime: 30_000,
   })
 }
 
@@ -49,6 +51,7 @@ export function useGroupBalance(groupId: string) {
       return res.data.data
     },
     enabled: !!groupId,
+    staleTime: 30_000,
   })
 }
 

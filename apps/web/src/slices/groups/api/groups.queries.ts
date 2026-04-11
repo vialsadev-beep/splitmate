@@ -14,6 +14,7 @@ export function useGroups() {
       const res = await apiClient.get<{ data: GroupSummary[] }>('/groups')
       return res.data.data
     },
+    staleTime: 30_000,
   })
 }
 
@@ -25,6 +26,7 @@ export function useGroup(groupId: string) {
       return res.data.data
     },
     enabled: !!groupId,
+    staleTime: 30_000,
   })
 }
 

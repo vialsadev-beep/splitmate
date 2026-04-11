@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus, Receipt, Scale, Users, Link as LinkIcon, BarChart2, Clock, Target, ScanLine } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useGroup } from '../api/groups.queries'
@@ -14,14 +14,19 @@ import { StatsTab } from '@/slices/stats/pages/StatsTab'
 import { ActivityFeedTab } from '@/slices/activity/components/ActivityFeedTab'
 import { BudgetsTab } from '@/slices/budgets/components/BudgetsTab'
 type Tab = 'expenses' | 'balance' | 'budgets' | 'stats' | 'activity' | 'members'
+const VALID_TABS: Tab[] = ['expenses', 'balance', 'budgets', 'stats', 'activity', 'members']
 
 export default function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>()
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
-  const [activeTab, setActiveTab] = useState<Tab>('expenses')
   const [showInvite, setShowInvite] = useState(false)
+
+  const tabParam = searchParams.get('tab') as Tab | null
+  const activeTab: Tab = tabParam && VALID_TABS.includes(tabParam) ? tabParam : 'expenses'
+  const setActiveTab = (tab: Tab) => setSearchParams({ tab }, { replace: true })
 
   const { data: group, isLoading } = useGroup(groupId!)
 

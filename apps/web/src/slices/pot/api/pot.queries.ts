@@ -35,6 +35,7 @@ export function useGroupPot(groupId: string) {
       return res.data.data
     },
     enabled: !!groupId,
+    staleTime: 30_000,
   })
 }
 

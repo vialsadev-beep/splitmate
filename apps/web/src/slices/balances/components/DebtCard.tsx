@@ -24,7 +24,7 @@ export function DebtCard({ debt, variant, currency, onSettle }: Props) {
       <div className="flex flex-col items-center gap-0.5 min-w-0">
         <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground overflow-hidden flex-shrink-0">
           {debt.from.avatarUrl
-            ? <img src={debt.from.avatarUrl} alt={debt.from.name} className="w-full h-full object-cover" />
+            ? <img loading="lazy" src={debt.from.avatarUrl} alt={debt.from.name} className="w-full h-full object-cover" />
             : debt.from.name.charAt(0).toUpperCase()
           }
         </div>
@@ -46,7 +46,7 @@ export function DebtCard({ debt, variant, currency, onSettle }: Props) {
       <div className="flex flex-col items-center gap-0.5 min-w-0">
         <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground overflow-hidden flex-shrink-0">
           {debt.to.avatarUrl
-            ? <img src={debt.to.avatarUrl} alt={debt.to.name} className="w-full h-full object-cover" />
+            ? <img loading="lazy" src={debt.to.avatarUrl} alt={debt.to.name} className="w-full h-full object-cover" />
             : debt.to.name.charAt(0).toUpperCase()
           }
         </div>

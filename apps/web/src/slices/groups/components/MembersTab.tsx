@@ -209,7 +209,7 @@ export function MembersTab({ group }: Props) {
           >
             <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
               {member.avatarUrl ? (
-                <img src={member.avatarUrl} alt={member.name} className="w-full h-full rounded-full object-cover" />
+                <img loading="lazy" src={member.avatarUrl} alt={member.name} className="w-full h-full rounded-full object-cover" />
               ) : (
                 <span className="text-sm font-semibold text-primary">
                   {member.name.charAt(0).toUpperCase()}

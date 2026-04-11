@@ -27,7 +27,7 @@ export function GroupCard({ group }: Props) {
       {/* Emoji / Avatar */}
       <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-2xl overflow-hidden">
         {group.avatarUrl ? (
-          <img src={group.avatarUrl} alt={group.name} className="w-full h-full object-cover" />
+          <img loading="lazy" src={group.avatarUrl} alt={group.name} className="w-full h-full object-cover" />
         ) : (
           group.emoji ?? '👥'
         )}

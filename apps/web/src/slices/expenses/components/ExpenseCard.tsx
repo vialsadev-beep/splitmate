@@ -98,7 +98,7 @@ export function ExpenseCard({ expense, groupId, currency, isAdmin = false, membe
           )}
         >
           {expense.receiptUrl ? (
-            <img src={expense.receiptUrl} alt="ticket" className="w-full h-full object-cover" />
+            <img loading="lazy" src={expense.receiptUrl} alt="ticket" className="w-full h-full object-cover" />
           ) : hasReceiptItems ? (
             <ScanLine className="h-5 w-5 text-primary" />
           ) : expense.isPrivate ? (

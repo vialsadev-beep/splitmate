@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { CreateGroupSchema, type CreateGroupInput } from '@splitmate/shared'
 import { useCreateGroup } from '../api/groups.queries'
+import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
 import { cn } from '@/shared/utils/cn'
 
 const CURRENCIES = ['EUR', 'USD', 'GBP', 'MXN', 'ARS', 'CLP', 'COP']
@@ -112,9 +113,7 @@ export default function CreateGroupPage() {
         </div>
 
         {createGroup.error && (
-          <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20">
-            <p className="text-xs text-destructive text-center">Error al crear el grupo</p>
-          </div>
+          <ApiErrorMessage error={createGroup.error} fallback={t('common.error')} />
         )}
 
         <div className="flex gap-3 pt-2">

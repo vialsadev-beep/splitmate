@@ -100,6 +100,9 @@ export function useUploadGroupAvatar(groupId: string) {
       )
       return res.data.data
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: groupsKeys.detail(groupId) }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: groupsKeys.detail(groupId) })
+      qc.invalidateQueries({ queryKey: groupsKeys.all })
+    },
   })
 }

@@ -52,6 +52,7 @@ export function useCreateExpense(groupId: string) {
       qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
       qc.invalidateQueries({ queryKey: ['activity', groupId] })
+      qc.invalidateQueries({ queryKey: ['groups'] })
     },
   })
 }
@@ -69,6 +70,7 @@ export function useUpdateExpense(groupId: string, expenseId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
+      qc.invalidateQueries({ queryKey: ['groups'] })
     },
   })
 }
@@ -83,6 +85,7 @@ export function useDeleteExpense(groupId: string) {
       qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
       qc.invalidateQueries({ queryKey: ['activity', groupId] })
+      qc.invalidateQueries({ queryKey: ['groups'] })
     },
   })
 }
@@ -100,6 +103,7 @@ export function useUpdateReceiptItems(groupId: string, expenseId: string) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['expenses', groupId] })
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
+      qc.invalidateQueries({ queryKey: ['groups'] })
     },
   })
 }

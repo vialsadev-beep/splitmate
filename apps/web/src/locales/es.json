@@ -278,7 +278,8 @@
     "lock": "Bloquear (solo mío)",
     "unlock": "Desbloquear",
     "lockedByOther": "Bloqueado",
-    "lockedCannotEdit": "Bloqueado por otro miembro"
+    "lockedCannotEdit": "Bloqueado por otro miembro",
+    "selectAllMine": "Seleccionar todo mío"
   },
   "errors": {
     "required": "Este campo es requerido",

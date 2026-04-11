@@ -41,6 +41,16 @@ export function ReceiptItemsSheet({ expense, groupId, members, onClose }: Props)
     )
   }
 
+  function selectAllForMe() {
+    setItems((prev) =>
+      prev.map((item) => {
+        if (item.locked && item.lockedBy && item.lockedBy !== user?.id) return item
+        if (item.memberIds.includes(user?.id ?? '')) return item
+        return { ...item, memberIds: [...item.memberIds, user?.id ?? ''] }
+      }),
+    )
+  }
+
   function toggleLock(itemId: string) {
     setItems((prev) =>
       prev.map((item) => {
@@ -71,9 +81,17 @@ export function ReceiptItemsSheet({ expense, groupId, members, onClose }: Props)
               {t('receipt.assignedProgress', { assigned: assignedCount, total: items.length })}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-accent transition-colors">
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={selectAllForMe}
+              className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
+            >
+              {t('receipt.selectAllMine')}
+            </button>
+            <button onClick={onClose} className="p-2 rounded-xl hover:bg-accent transition-colors">
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
 
         {/* Items */}

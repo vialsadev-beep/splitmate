@@ -278,7 +278,8 @@
     "lock": "Lock (mine only)",
     "unlock": "Unlock",
     "lockedByOther": "Locked",
-    "lockedCannotEdit": "Locked by another member"
+    "lockedCannotEdit": "Locked by another member",
+    "selectAllMine": "Select all for me"
   },
   "errors": {
     "required": "This field is required",

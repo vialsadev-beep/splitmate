@@ -1,21 +1,25 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Bell, ChevronLeft } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/shared/utils/cn'
 import { useUnreadCount } from '@/slices/notifications/api/notifications.queries'
 
-const TITLES: Record<string, string> = {
-  '/groups': 'SplitMate',
-  '/profile': 'Perfil',
-  '/notifications': 'Notificaciones',
-}
+const ROOT_PATHS = ['/groups', '/profile', '/notifications']
 
 export function TopBar() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { data: unreadCount = 0 } = useUnreadCount()
 
+  const TITLES: Record<string, string> = {
+    '/groups': 'SplitMate',
+    '/profile': t('profile.title'),
+    '/notifications': t('notifications.title'),
+  }
+
   const title = TITLES[location.pathname] ?? 'SplitMate'
-  const showBack = !Object.keys(TITLES).includes(location.pathname)
+  const showBack = !ROOT_PATHS.includes(location.pathname)
 
   return (
     <header className={cn(

@@ -63,6 +63,7 @@ export function useSettleDebt(groupId: string) {
       qc.invalidateQueries({ queryKey: ['balances', groupId] })
       qc.invalidateQueries({ queryKey: ['payments', groupId] })
       qc.invalidateQueries({ queryKey: ['activity', groupId] })
+      qc.invalidateQueries({ queryKey: ['groups'] })
     },
   })
 }

@@ -1,5 +1,6 @@
 import { AppError } from '../../shared/errors/AppError'
 import { groupsRepository } from './groups.repository'
+import { balancesRepository } from '../balances/balances.repository'
 import type { CreateGroupInput, UpdateGroupInput } from '@splitmate/shared'
 
 function formatMember(m: {
@@ -38,13 +39,16 @@ function formatGroup(group: Awaited<ReturnType<typeof groupsRepository.findById>
 export const groupsService = {
   async getMyGroups(userId: string) {
     const groups = await groupsRepository.findAllByUser(userId)
+    const groupIds = groups.map((g) => g.id)
+    const balances = await balancesRepository.getMyBalancesForGroups(groupIds, userId)
     return groups.map((g) => ({
       id: g.id,
       name: g.name,
       emoji: g.emoji,
+      avatarUrl: g.avatarUrl,
       currency: g.currency,
       memberCount: g.members.length,
-      myBalance: '0.00', // Se calcula en el slice de balances
+      myBalance: (balances.get(g.id) ?? 0).toFixed(2),
       updatedAt: g.updatedAt.toISOString(),
     }))
   },

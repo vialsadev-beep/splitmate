@@ -71,7 +71,9 @@
     "debtLimitPlaceholder": "No limit",
     "namePlaceholder": "Portugal trip, Shared apartment...",
     "descriptionPlaceholder": "September 2026...",
-    "subtitle": "Set up your group details"
+    "subtitle": "Set up your group details",
+    "memberCount_one": "{{count}} member",
+    "memberCount_other": "{{count}} members"
   },
   "expenses": {
     "title": "Expenses",

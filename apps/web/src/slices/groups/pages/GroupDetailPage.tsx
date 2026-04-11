@@ -43,8 +43,12 @@ export default function GroupDetailPage() {
     <div className="space-y-4">
       {/* Header del grupo */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-2xl flex-shrink-0">
-          {group.emoji ?? '👥'}
+        <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-2xl flex-shrink-0 overflow-hidden">
+          {group.avatarUrl ? (
+            <img src={group.avatarUrl} alt={group.name} className="w-full h-full object-cover" />
+          ) : (
+            group.emoji ?? '👥'
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-bold text-foreground truncate">{group.name}</h2>

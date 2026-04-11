@@ -74,7 +74,18 @@
       "Bash(node:*)",
       "Bash(pnpm --filter @splitmate/shared build)",
       "Bash(pnpm --filter @splitmate/api build)",
-      "Bash(pnpm --filter @splitmate/web build)"
+      "Bash(pnpm --filter @splitmate/web build)",
+      "Bash(pnpm --filter web test)",
+      "Bash(pnpm --filter web exec tsc --noEmit)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm prisma:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(railway --version)",
+      "Bash(grep -v \"node_modules\\\\|t\\('\\\\|t\\(\\\\`\\\\|className\\\\|console\\\\|//\\\\|import\\\\|type\\\\|const\\\\|interface\\\\|href\\\\|URL\\\\|url\\\\|from\\\\|@\")",
+      "Bash(pnpm --filter @splitmate/api add @anthropic-ai/sdk)",
+      "Bash(pnpm --filter @splitmate/api run build)",
+      "Bash(pnpm --filter @splitmate/web add tesseract.js)",
+      "Bash(npx turbo:*)"
     ]
   }
 }

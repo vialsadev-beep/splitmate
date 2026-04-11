@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ShieldAlert } from 'lucide-react'
 import { CreateExpenseSchema, type CreateExpenseInput } from '@splitmate/shared'
 import { useExpense, useUpdateExpense } from '../api/expenses.queries'
 import { useGroup } from '@/slices/groups/api/groups.queries'
@@ -21,6 +22,8 @@ export default function EditExpensePage() {
   const { data: group } = useGroup(groupId!)
   const { data: expense, isLoading } = useExpense(groupId!, expenseId!)
   const updateExpense = useUpdateExpense(groupId!, expenseId!)
+  const [isPrivate, setIsPrivate] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const { register, handleSubmit, control, setValue, watch, reset, formState: { errors } } =
     useForm<CreateExpenseInput>({
@@ -36,9 +39,9 @@ export default function EditExpensePage() {
   const splitType = useWatch({ control, name: 'splitType' })
   const members = group?.members ?? []
 
-  // Pre-poblar el formulario cuando se cargan los datos del gasto
   useEffect(() => {
     if (!expense) return
+    setIsPrivate(expense.isPrivate)
 
     const defaults: Partial<CreateExpenseInput> = {
       title: expense.title,
@@ -50,21 +53,17 @@ export default function EditExpensePage() {
       categoryId: expense.category?.id,
     }
 
-    // Reconstruir los splits según el tipo
     if (expense.splitType === 'EQUAL') {
       defaults.participantIds = expense.splits.map((s) => s.userId)
     } else if (expense.splitType === 'EXACT') {
       defaults.splits = expense.splits.map((s) => ({ userId: s.userId, amount: s.amount }))
     } else if (expense.splitType === 'PERCENTAGE') {
-      // No tenemos los porcentajes originales, solo los importes calculados
-      // Recalcular los porcentajes aproximados a partir de los importes
       const total = parseFloat(expense.amount)
       defaults.percentageSplits = expense.splits.map((s) => ({
         userId: s.userId,
         percentage: total > 0 ? ((parseFloat(s.amount) / total) * 100).toFixed(2) : '0',
       }))
     } else if (expense.splitType === 'SHARES') {
-      // No tenemos las partes originales, usar 1 para todos
       defaults.shareSplits = expense.splits.map((s) => ({ userId: s.userId, shares: 1 }))
     }
 
@@ -73,7 +72,10 @@ export default function EditExpensePage() {
 
   async function onSubmit(data: CreateExpenseInput) {
     try {
-      await updateExpense.mutateAsync(data)
+      await (updateExpense.mutateAsync as (d: CreateExpenseInput & { isPrivate?: boolean }) => Promise<unknown>)({
+        ...data,
+        isPrivate,
+      })
       navigate(-1)
     } catch {
       // error handled below
@@ -95,13 +97,53 @@ export default function EditExpensePage() {
 
   return (
     <div className="space-y-5 pb-8">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">{t('expenses.edit')}</h2>
-        {group && <p className="text-sm text-muted-foreground mt-1">{group.name}</p>}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">{t('expenses.edit')}</h2>
+          {group && <p className="text-sm text-muted-foreground mt-1">{group.name}</p>}
+        </div>
+
+        <div className="relative flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsPrivate((v) => !v)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            onTouchStart={() => setShowTooltip(true)}
+            onTouchEnd={() => setTimeout(() => setShowTooltip(false), 1800)}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all',
+              isPrivate
+                ? 'border-violet-400 bg-violet-500/10 text-violet-600 dark:text-violet-400'
+                : 'border-border text-muted-foreground hover:border-violet-400/60 hover:text-violet-500',
+            )}
+          >
+            <ShieldAlert className="h-3.5 w-3.5" />
+            {isPrivate ? t('expenses.private') : t('expenses.makePrivate')}
+          </button>
+
+          {showTooltip && (
+            <div className="absolute right-0 top-full mt-2 w-56 z-50 pointer-events-none">
+              <div className="bg-popover border border-border rounded-xl shadow-lg p-3">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {t('expenses.privateTooltip')}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
+      {isPrivate && (
+        <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-violet-500/10 border border-violet-400/30">
+          <ShieldAlert className="h-4 w-4 text-violet-500 flex-shrink-0" />
+          <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
+            {t('expenses.privateBanner')}
+          </p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {/* Descripción */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">{t('expenses.description')}</label>
           <input
@@ -113,7 +155,6 @@ export default function EditExpensePage() {
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
 
-        {/* Importe */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">{t('expenses.amount')}</label>
           <div className="relative">
@@ -133,7 +174,6 @@ export default function EditExpensePage() {
           {errors.amount && <p className="text-xs text-destructive">{errors.amount.message}</p>}
         </div>
 
-        {/* Pagado por */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">{t('expenses.paidBy')}</label>
           <select {...register('payerId')} className={inputClass}>
@@ -145,7 +185,6 @@ export default function EditExpensePage() {
           </select>
         </div>
 
-        {/* Tipo de división */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">{t('expenses.splitType')}</label>
           <div className="grid grid-cols-2 gap-2">
@@ -172,7 +211,6 @@ export default function EditExpensePage() {
           </div>
         </div>
 
-        {/* Split selector dinámico */}
         <SplitSelector
           splitType={splitType}
           members={members}
@@ -181,7 +219,6 @@ export default function EditExpensePage() {
           watch={watch}
         />
 
-        {/* Fecha */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">{t('expenses.date')}</label>
           <input
@@ -192,7 +229,6 @@ export default function EditExpensePage() {
           />
         </div>
 
-        {/* Notas */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">
             {t('expenses.notes')} <span className="text-muted-foreground">({t('common.optional')})</span>

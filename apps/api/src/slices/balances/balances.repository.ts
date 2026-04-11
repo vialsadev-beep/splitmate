@@ -84,6 +84,46 @@ export const balancesRepository = {
     }))
   },
 
+  /**
+   * Computes the requesting user's net balance for each of the specified groups.
+   * Uses two queries (splits + payments) instead of N per-group queries.
+   */
+  async getMyBalancesForGroups(groupIds: string[], userId: string): Promise<Map<string, Decimal>> {
+    const result = new Map<string, Decimal>()
+    for (const gId of groupIds) result.set(gId, new Decimal(0))
+    if (groupIds.length === 0) return result
+
+    const [splits, payments] = await Promise.all([
+      prisma.expenseSplit.findMany({
+        where: { expense: { groupId: { in: groupIds }, deletedAt: null }, isPaid: false },
+        select: { userId: true, amount: true, expense: { select: { payerId: true, groupId: true } } },
+      }),
+      prisma.payment.findMany({
+        where: {
+          groupId: { in: groupIds },
+          deletedAt: null,
+          OR: [{ senderId: userId }, { receiverId: userId }],
+        },
+        select: { groupId: true, senderId: true, receiverId: true, amount: true },
+      }),
+    ])
+
+    for (const split of splits) {
+      const gId = split.expense.groupId
+      const cur = result.get(gId) ?? new Decimal(0)
+      if (split.expense.payerId === userId) result.set(gId, cur.plus(split.amount))
+      if (split.userId === userId) result.set(gId, (result.get(gId) ?? cur).minus(split.amount))
+    }
+
+    for (const p of payments) {
+      const cur = result.get(p.groupId) ?? new Decimal(0)
+      if (p.senderId === userId) result.set(p.groupId, cur.plus(p.amount))
+      else if (p.receiverId === userId) result.set(p.groupId, cur.minus(p.amount))
+    }
+
+    return result
+  },
+
   async getTotalExpenses(groupId: string): Promise<Decimal> {
     const result = await prisma.expense.aggregate({
       where: { groupId, deletedAt: null },

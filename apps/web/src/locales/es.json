@@ -71,7 +71,9 @@
     "debtLimitPlaceholder": "Sin límite",
     "namePlaceholder": "Viaje a Lisboa, Piso compartido...",
     "descriptionPlaceholder": "Septiembre 2026...",
-    "subtitle": "Configura los datos del grupo"
+    "subtitle": "Configura los datos del grupo",
+    "memberCount_one": "{{count}} miembro",
+    "memberCount_other": "{{count}} miembros"
   },
   "expenses": {
     "title": "Gastos",

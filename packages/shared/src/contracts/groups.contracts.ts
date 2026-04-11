@@ -53,6 +53,7 @@ export const GroupSummarySchema = z.object({
   id: z.string(),
   name: z.string(),
   emoji: z.string().nullable(),
+  avatarUrl: z.string().nullable(),
   currency: z.string(),
   memberCount: z.number(),
   myBalance: z.string(),

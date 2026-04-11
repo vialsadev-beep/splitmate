@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Camera, Shield, LogOut } from 'lucide-react'
+import { Camera, Shield, LogOut, UserMinus, Trash2 } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { cn } from '@/shared/utils/cn'
-import { useUpdateGroup, useUploadGroupAvatar, useLeaveGroup } from '../api/groups.queries'
+import { useUpdateGroup, useUploadGroupAvatar, useLeaveGroup, useRemoveMember, useDeleteGroup } from '../api/groups.queries'
 import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
 import type { GroupResponse } from '@splitmate/shared'
 
@@ -21,6 +21,8 @@ export function MembersTab({ group }: Props) {
   const updateGroup = useUpdateGroup(group.id)
   const uploadAvatar = useUploadGroupAvatar(group.id)
   const leaveGroup = useLeaveGroup(group.id)
+  const removeMember = useRemoveMember(group.id)
+  const deleteGroup = useDeleteGroup(group.id)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const [debtLimit, setDebtLimit] = useState(group.debtLimit ?? '')
@@ -29,6 +31,7 @@ export function MembersTab({ group }: Props) {
   const [debtLimitError, setDebtLimitError] = useState<unknown>(null)
   const [leaveError, setLeaveError] = useState<unknown>(null)
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleLeaveGroup() {
     if (!confirmLeave) { setConfirmLeave(true); return }
@@ -39,6 +42,24 @@ export function MembersTab({ group }: Props) {
     } catch (e) {
       setLeaveError(e)
       setConfirmLeave(false)
+    }
+  }
+
+  async function handleDeleteGroup() {
+    if (!confirmDelete) { setConfirmDelete(true); return }
+    try {
+      await deleteGroup.mutateAsync()
+      navigate('/groups', { replace: true })
+    } catch {
+      setConfirmDelete(false)
+    }
+  }
+
+  async function handleRemoveMember(userId: string) {
+    const member = group.members.find((m) => m.userId === userId)
+    if (!member) return
+    if (confirm(t('groups.removeMemberConfirm', { name: member.name }))) {
+      await removeMember.mutateAsync(userId)
     }
   }
 
@@ -149,6 +170,33 @@ export function MembersTab({ group }: Props) {
             </div>
             <ApiErrorMessage error={debtLimitError} />
           </div>
+
+          {/* Zona peligrosa: eliminar grupo */}
+          <div className="border-t border-border pt-4 space-y-2">
+            <p className="text-xs text-muted-foreground">{t('groups.deleteGroupDesc')}</p>
+            <button
+              onClick={handleDeleteGroup}
+              disabled={deleteGroup.isPending}
+              className={cn(
+                'w-full flex items-center justify-center gap-2 py-2 rounded-xl text-sm font-medium transition-all',
+                confirmDelete
+                  ? 'bg-destructive text-destructive-foreground'
+                  : 'text-destructive border border-destructive/30 hover:bg-destructive/10',
+                deleteGroup.isPending && 'opacity-50',
+              )}
+            >
+              <Trash2 className="h-4 w-4" />
+              {confirmDelete ? t('groups.deleteGroupConfirm') : t('groups.deleteGroup')}
+            </button>
+            {confirmDelete && (
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="w-full text-xs text-muted-foreground py-1 hover:text-foreground transition-colors"
+              >
+                {t('common.cancel')}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -187,6 +235,16 @@ export function MembersTab({ group }: Props) {
             )}>
               {member.role === 'ADMIN' ? t('groups.admin') : t('groups.member')}
             </span>
+            {isAdmin && member.userId !== user?.id && (
+              <button
+                onClick={() => handleRemoveMember(member.userId)}
+                disabled={removeMember.isPending}
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+                title={t('groups.removeMember')}
+              >
+                <UserMinus className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         ))}
       </div>

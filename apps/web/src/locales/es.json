@@ -77,7 +77,12 @@
     "memberCount_one": "{{count}} miembro",
     "memberCount_other": "{{count}} miembros",
     "leaveGroup": "Salir del grupo",
-    "leaveConfirm": "¿Seguro que quieres salir?"
+    "leaveConfirm": "¿Seguro que quieres salir?",
+    "deleteGroup": "Eliminar grupo",
+    "deleteGroupDesc": "Esta acción no se puede deshacer.",
+    "deleteGroupConfirm": "¿Confirmar eliminación?",
+    "removeMember": "Eliminar miembro",
+    "removeMemberConfirm": "¿Eliminar a {{name}} del grupo?"
   },
   "expenses": {
     "title": "Gastos",

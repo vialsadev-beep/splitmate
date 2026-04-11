@@ -85,6 +85,26 @@ export function useLeaveGroup(groupId: string) {
   })
 }
 
+export function useUpdateMemberRole(groupId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: 'ADMIN' | 'MEMBER' }) => {
+      await apiClient.patch(`/groups/${groupId}/members/${userId}`, { role })
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: groupsKeys.detail(groupId) }),
+  })
+}
+
+export function useDeleteGroup(groupId: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      await apiClient.delete(`/groups/${groupId}`)
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: groupsKeys.all }),
+  })
+}
+
 export function useUpdateGroup(groupId: string) {
   const qc = useQueryClient()
   return useMutation({

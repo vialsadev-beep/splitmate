@@ -77,7 +77,12 @@
     "memberCount_one": "{{count}} member",
     "memberCount_other": "{{count}} members",
     "leaveGroup": "Leave group",
-    "leaveConfirm": "Are you sure you want to leave?"
+    "leaveConfirm": "Are you sure you want to leave?",
+    "deleteGroup": "Delete group",
+    "deleteGroupDesc": "This action cannot be undone.",
+    "deleteGroupConfirm": "Confirm deletion?",
+    "removeMember": "Remove member",
+    "removeMemberConfirm": "Remove {{name}} from the group?"
   },
   "expenses": {
     "title": "Expenses",

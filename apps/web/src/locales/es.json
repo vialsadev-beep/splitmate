@@ -72,6 +72,7 @@
     "namePlaceholder": "Viaje a Lisboa, Piso compartido...",
     "descriptionPlaceholder": "Septiembre 2026...",
     "subtitle": "Configura los datos del grupo",
+    "inviteDesc": "Comparte este link para que otros puedan unirse a «{{name}}».",
     "memberCount_one": "{{count}} miembro",
     "memberCount_other": "{{count}} miembros"
   },

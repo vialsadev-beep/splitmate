@@ -38,7 +38,7 @@ export function InviteModal({ group, onClose }: Props) {
         </div>
 
         <p className="text-sm text-muted-foreground">
-          Comparte este link para que otros puedan unirse a <strong>{group.name}</strong>.
+          {t('groups.inviteDesc', { name: group.name })}
         </p>
 
         {/* Link */}

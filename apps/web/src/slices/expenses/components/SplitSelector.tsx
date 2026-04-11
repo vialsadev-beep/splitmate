@@ -76,7 +76,7 @@ export function SplitSelector({ splitType, members, setValue, watch }: Props) {
   if (splitType === 'EXACT') {
     return (
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Importe por persona</label>
+        <label className="text-sm font-medium text-foreground">{t('expenses.amountPerPerson')}</label>
         <div className="space-y-2">
           {members.map((m) => (
             <div key={m.userId} className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export function SplitSelector({ splitType, members, setValue, watch }: Props) {
   if (splitType === 'PERCENTAGE') {
     return (
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Porcentaje por persona</label>
+        <label className="text-sm font-medium text-foreground">{t('expenses.percentagePerPerson')}</label>
         <div className="space-y-2">
           {members.map((m) => (
             <div key={m.userId} className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export function SplitSelector({ splitType, members, setValue, watch }: Props) {
   if (splitType === 'SHARES') {
     return (
       <div className="space-y-2">
-        <label className="text-sm font-medium text-foreground">Partes por persona</label>
+        <label className="text-sm font-medium text-foreground">{t('expenses.sharesPerPerson')}</label>
         <div className="space-y-2">
           {members.map((m) => (
             <div key={m.userId} className="flex items-center gap-2">

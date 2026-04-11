@@ -112,7 +112,10 @@
     "makePrivate": "Make private",
     "privateTooltip": "This expense will only be visible to assigned members. Others will see it exists but not the details.",
     "privateBanner": "Only assigned members will be able to see the details of this expense.",
-    "privateHidden": "Private expense · No access"
+    "privateHidden": "Private expense · No access",
+    "amountPerPerson": "Amount per person",
+    "percentagePerPerson": "Percentage per person",
+    "sharesPerPerson": "Shares per person"
   },
   "balances": {
     "title": "Balance",

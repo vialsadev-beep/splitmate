@@ -22,8 +22,11 @@ export function DebtCard({ debt, variant, currency, onSettle }: Props) {
     )}>
       {/* From */}
       <div className="flex flex-col items-center gap-0.5 min-w-0">
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground">
-          {debt.from.name.charAt(0).toUpperCase()}
+        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground overflow-hidden flex-shrink-0">
+          {debt.from.avatarUrl
+            ? <img src={debt.from.avatarUrl} alt={debt.from.name} className="w-full h-full object-cover" />
+            : debt.from.name.charAt(0).toUpperCase()
+          }
         </div>
         <span className="text-xs text-muted-foreground truncate max-w-[60px]">{debt.from.name}</span>
       </div>
@@ -41,8 +44,11 @@ export function DebtCard({ debt, variant, currency, onSettle }: Props) {
 
       {/* To */}
       <div className="flex flex-col items-center gap-0.5 min-w-0">
-        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground">
-          {debt.to.name.charAt(0).toUpperCase()}
+        <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground overflow-hidden flex-shrink-0">
+          {debt.to.avatarUrl
+            ? <img src={debt.to.avatarUrl} alt={debt.to.name} className="w-full h-full object-cover" />
+            : debt.to.name.charAt(0).toUpperCase()
+          }
         </div>
         <span className="text-xs text-muted-foreground truncate max-w-[60px]">{debt.to.name}</span>
       </div>

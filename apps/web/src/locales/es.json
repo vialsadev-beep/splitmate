@@ -112,7 +112,10 @@
     "makePrivate": "Hacer privado",
     "privateTooltip": "Este gasto solo será visible para las personas asignadas. El resto verá que existe pero no podrá ver los detalles.",
     "privateBanner": "Solo las personas asignadas podrán ver los detalles de este gasto.",
-    "privateHidden": "Gasto privado · No tienes acceso"
+    "privateHidden": "Gasto privado · No tienes acceso",
+    "amountPerPerson": "Importe por persona",
+    "percentagePerPerson": "Porcentaje por persona",
+    "sharesPerPerson": "Partes por persona"
   },
   "balances": {
     "title": "Balance",

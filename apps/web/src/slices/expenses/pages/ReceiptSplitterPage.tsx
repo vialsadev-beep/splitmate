@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { createWorker } from 'tesseract.js'
-import { Plus, Camera, Loader2, AlertCircle, Sparkles } from 'lucide-react'
+import { Plus, Camera, Loader2, AlertCircle, Sparkles, X } from 'lucide-react'
 import { useGroup } from '@/slices/groups/api/groups.queries'
 import { useCreateExpense } from '../api/expenses.queries'
 import { useAuth } from '@/shared/hooks/useAuth'
@@ -95,6 +95,14 @@ export default function ReceiptSplitterPage() {
     setExtraItems((prev) => [...prev, { name: newName.trim(), price: price.toFixed(2) }])
     setNewName('')
     setNewPrice('')
+  }
+
+  function removeDetected(index: number) {
+    setDetectedItems((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  function removeExtra(index: number) {
+    setExtraItems((prev) => prev.filter((_, i) => i !== index))
   }
 
   async function handleCreate() {
@@ -208,10 +216,22 @@ export default function ReceiptSplitterPage() {
           {allItems.length > 0 && (
             <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
               <h3 className="text-sm font-semibold text-foreground">{t('receipt.items')}</h3>
-              {allItems.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-sm">
+              {detectedItems.map((item, i) => (
+                <div key={`d-${i}`} className="flex items-center justify-between text-sm gap-2">
                   <span className="text-foreground truncate flex-1">{item.name}</span>
-                  <span className="text-muted-foreground font-medium ml-2 flex-shrink-0">{item.price} {group?.currency}</span>
+                  <span className="text-muted-foreground font-medium flex-shrink-0">{item.price} {group?.currency}</span>
+                  <button type="button" onClick={() => removeDetected(i)} className="p-0.5 rounded text-muted-foreground hover:text-destructive transition-colors flex-shrink-0">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+              {extraItems.map((item, i) => (
+                <div key={`e-${i}`} className="flex items-center justify-between text-sm gap-2">
+                  <span className="text-foreground truncate flex-1">{item.name}</span>
+                  <span className="text-muted-foreground font-medium flex-shrink-0">{item.price} {group?.currency}</span>
+                  <button type="button" onClick={() => removeExtra(i)} className="p-0.5 rounded text-muted-foreground hover:text-destructive transition-colors flex-shrink-0">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </div>
               ))}
               <div className="pt-2 border-t border-border flex justify-between">

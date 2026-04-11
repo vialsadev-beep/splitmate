@@ -3,6 +3,35 @@ import { prisma } from './prisma'
 import { balancesRepository } from '../../slices/balances/balances.repository'
 
 /**
+ * Notifica a los miembros afectados por un nuevo gasto
+ * (todos los splits excepto el pagador).
+ */
+export async function notifyExpenseAdded(
+  groupId: string,
+  expenseId: string,
+  payerName: string,
+  expenseTitle: string,
+  amount: string,
+  currency: string,
+  participantIds: string[],
+  payerId: string,
+) {
+  const recipientIds = participantIds.filter((id) => id !== payerId)
+  if (recipientIds.length === 0) return
+
+  await prisma.notification.createMany({
+    data: recipientIds.map((userId) => ({
+      userId,
+      type: 'EXPENSE_ADDED' as const,
+      title: `${payerName} añadió «${expenseTitle}»`,
+      body: `${amount} ${currency} dividido entre ${participantIds.length} persona${participantIds.length === 1 ? '' : 's'}`,
+      data: { groupId, expenseId },
+    })),
+    skipDuplicates: true,
+  })
+}
+
+/**
  * Comprueba si algún miembro supera el límite de deuda del grupo
  * y crea notificaciones DEBT_LIMIT para los afectados.
  * Se llama después de crear/actualizar gastos o registrar pagos.

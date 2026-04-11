@@ -3,7 +3,7 @@ import { AppError } from '../../shared/errors/AppError'
 import { prisma } from '../../shared/lib/prisma'
 import { expensesRepository } from './expenses.repository'
 import { balancesService } from '../balances/balances.service'
-import { checkDebtLimitNotifications } from '../../shared/lib/notify'
+import { checkDebtLimitNotifications, notifyExpenseAdded } from '../../shared/lib/notify'
 import { getPaginationParams, buildPaginatedResponse } from '../../shared/utils/pagination'
 import type { CreateExpenseInput, UpdateExpenseInput, ReceiptItem } from '@splitmate/shared'
 
@@ -218,9 +218,19 @@ export const expensesService = {
       isPrivate: (input as CreateExpenseInput & { isPrivate?: boolean }).isPrivate ?? false,
     })
 
-    // Balances cambian → invalidar caché + comprobar límite de deuda
+    // Balances cambian → invalidar caché + comprobar límite de deuda + notificar
     await balancesService.invalidateCache(groupId)
     void checkDebtLimitNotifications(groupId)
+    void notifyExpenseAdded(
+      groupId,
+      expense.id,
+      expense.payer.name,
+      expense.title,
+      amount.toFixed(2),
+      group.currency,
+      splits.map((s) => s.userId),
+      input.payerId,
+    )
 
     return formatExpense(expense, requesterId)
   },

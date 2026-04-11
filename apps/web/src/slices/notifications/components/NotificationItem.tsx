@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { cn } from '@/shared/utils/cn'
 import { formatRelativeDate } from '@/shared/utils'
 import type { Notification } from '../api/notifications.queries'
@@ -10,20 +11,51 @@ const TYPE_ICON: Record<Notification['type'], string> = {
   BUDGET_ALERT: '🎯',
 }
 
+function getNotificationPath(notification: Notification): string | null {
+  const data = notification.data as Record<string, string> | null
+  if (!data) return null
+
+  switch (notification.type) {
+    case 'EXPENSE_ADDED':
+      if (data.groupId && data.expenseId) return `/groups/${data.groupId}/expenses/${data.expenseId}`
+      if (data.groupId) return `/groups/${data.groupId}?tab=expenses`
+      break
+    case 'PAYMENT_RECEIVED':
+    case 'DEBT_LIMIT':
+      if (data.groupId) return `/groups/${data.groupId}?tab=balance`
+      break
+    case 'BUDGET_ALERT':
+      if (data.groupId) return `/groups/${data.groupId}?tab=budgets`
+      break
+    case 'GROUP_INVITE':
+      if (data.groupId) return `/groups/${data.groupId}`
+      break
+  }
+  return null
+}
+
 interface Props {
   notification: Notification
   onRead: (id: string) => void
 }
 
 export function NotificationItem({ notification, onRead }: Props) {
+  const navigate = useNavigate()
   const isUnread = !notification.readAt
+  const path = getNotificationPath(notification)
+
+  function handleClick() {
+    if (isUnread) onRead(notification.id)
+    if (path) navigate(path)
+  }
 
   return (
     <button
-      onClick={() => isUnread && onRead(notification.id)}
+      onClick={handleClick}
       className={cn(
         'w-full text-left flex items-start gap-3 px-4 py-3 transition-colors',
         isUnread ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-accent',
+        path && 'cursor-pointer',
       )}
     >
       <span className="text-xl flex-shrink-0 mt-0.5">

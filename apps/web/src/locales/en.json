@@ -310,6 +310,8 @@
     "editExpense": "Error editing expense",
     "register": "Error signing up",
     "recordPayment": "Error recording payment",
-    "changePassword": "Error changing password"
+    "changePassword": "Error changing password",
+    "lastAdmin": "You can't leave as the only group admin",
+    "notFound": "Resource not found"
   }
 }

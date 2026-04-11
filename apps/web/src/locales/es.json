@@ -310,6 +310,8 @@
     "editExpense": "Error al editar el gasto",
     "register": "Error al registrarse",
     "recordPayment": "Error al registrar el pago",
-    "changePassword": "Error al cambiar la contraseña"
+    "changePassword": "Error al cambiar la contraseña",
+    "lastAdmin": "No puedes salir siendo el único administrador del grupo",
+    "notFound": "Recurso no encontrado"
   }
 }

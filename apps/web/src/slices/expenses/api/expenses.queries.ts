@@ -2,6 +2,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient } from '@/shared/lib/api-client'
 import type { CreateExpenseInput, UpdateExpenseInput, ExpenseResponse, ReceiptItem } from '@splitmate/shared'
 
+export interface Category {
+  id: string
+  name: string
+  emoji: string | null
+  color: string | null
+}
+
+export function useCategories(groupId: string) {
+  return useQuery({
+    queryKey: ['categories', groupId],
+    queryFn: async () => {
+      const res = await apiClient.get<{ data: Category[] }>(`/categories?groupId=${groupId}`)
+      return res.data.data
+    },
+    enabled: !!groupId,
+    staleTime: 1000 * 60 * 10, // 10 min — categories rarely change
+  })
+}
+
 interface PaginatedExpenses {
   data: ExpenseResponse[]
   meta: { total: number; page: number; limit: number; totalPages: number }

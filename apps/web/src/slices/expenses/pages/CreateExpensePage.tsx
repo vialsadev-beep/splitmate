@@ -5,7 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ShieldAlert } from 'lucide-react'
 import { CreateExpenseSchema, type CreateExpenseInput } from '@splitmate/shared'
-import { useCreateExpense } from '../api/expenses.queries'
+import { useCreateExpense, useCategories } from '../api/expenses.queries'
 import { useGroup } from '@/slices/groups/api/groups.queries'
 import { SplitSelector } from '../components/SplitSelector'
 import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
@@ -20,6 +20,7 @@ export default function CreateExpensePage() {
   const { user } = useAuth()
   const { data: group } = useGroup(groupId!)
   const createExpense = useCreateExpense(groupId!)
+  const { data: categories = [] } = useCategories(groupId!)
   const [isPrivate, setIsPrivate] = useState(false)
   const [showTooltip, setShowTooltip] = useState(false)
 
@@ -191,6 +192,45 @@ export default function CreateExpensePage() {
           setValue={setValue}
           watch={watch}
         />
+
+        {/* Categoría */}
+        {categories.length > 0 && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground">
+              {t('expenses.category')} <span className="text-muted-foreground">({t('common.optional')})</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setValue('categoryId', undefined)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm transition-all',
+                  !watch('categoryId')
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border text-muted-foreground hover:text-foreground',
+                )}
+              >
+                💸 {t('stats.other')}
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setValue('categoryId', cat.id)}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm transition-all',
+                    watch('categoryId') === cat.id
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {cat.emoji && <span>{cat.emoji}</span>}
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Fecha */}
         <div className="space-y-1">

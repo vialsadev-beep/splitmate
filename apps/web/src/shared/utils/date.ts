@@ -1,8 +1,13 @@
+function getLocale(): string {
+  const lang = localStorage.getItem('locale') ?? 'es'
+  return lang === 'en' ? 'en-US' : 'es-ES'
+}
+
 /**
  * Formatea una fecha ISO en formato legible.
  */
-export function formatDate(dateStr: string, locale = 'es-ES'): string {
-  return new Intl.DateTimeFormat(locale, {
+export function formatDate(dateStr: string, locale?: string): string {
+  return new Intl.DateTimeFormat(locale ?? getLocale(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -10,21 +15,22 @@ export function formatDate(dateStr: string, locale = 'es-ES'): string {
 }
 
 /**
- * Formatea fecha relativa: "hace 2 días", "ayer", "hoy".
+ * Formatea fecha relativa: "hace 2 días", "ayer", "hoy" / "2 days ago", "yesterday", "today".
  */
-export function formatRelativeDate(dateStr: string, locale = 'es-ES'): string {
+export function formatRelativeDate(dateStr: string, locale?: string): string {
+  const resolvedLocale = locale ?? getLocale()
   const date = new Date(dateStr)
   const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) return locale.startsWith('es') ? 'Hoy' : 'Today'
-  if (diffDays === 1) return locale.startsWith('es') ? 'Ayer' : 'Yesterday'
+  if (diffDays === 0) return resolvedLocale.startsWith('en') ? 'Today' : 'Hoy'
+  if (diffDays === 1) return resolvedLocale.startsWith('en') ? 'Yesterday' : 'Ayer'
   if (diffDays < 7) {
-    return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(-diffDays, 'day')
+    return new Intl.RelativeTimeFormat(resolvedLocale, { numeric: 'auto' }).format(-diffDays, 'day')
   }
 
-  return formatDate(dateStr, locale)
+  return formatDate(dateStr, resolvedLocale)
 }
 
 /**

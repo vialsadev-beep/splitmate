@@ -1,12 +1,17 @@
+function getLocale(): string {
+  const lang = localStorage.getItem('locale') ?? 'es'
+  return lang === 'en' ? 'en-US' : 'es-ES'
+}
+
 /**
  * Formatea un monto como moneda con símbolo.
  * Siempre usa string de entrada para evitar errores de float.
  */
-export function formatCurrency(amount: string | number, currency = 'EUR', locale = 'es-ES'): string {
+export function formatCurrency(amount: string | number, currency = 'EUR', locale?: string): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
   if (isNaN(num)) return '—'
 
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(locale ?? getLocale(), {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
@@ -17,10 +22,10 @@ export function formatCurrency(amount: string | number, currency = 'EUR', locale
 /**
  * Formatea solo el número sin símbolo de moneda.
  */
-export function formatAmount(amount: string | number, locale = 'es-ES'): string {
+export function formatAmount(amount: string | number, locale?: string): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
   if (isNaN(num)) return '0,00'
-  return new Intl.NumberFormat(locale, {
+  return new Intl.NumberFormat(locale ?? getLocale(), {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(num)
@@ -29,9 +34,9 @@ export function formatAmount(amount: string | number, locale = 'es-ES'): string 
 /**
  * Devuelve el símbolo de la moneda.
  */
-export function getCurrencySymbol(currency = 'EUR', locale = 'es-ES'): string {
+export function getCurrencySymbol(currency = 'EUR', locale?: string): string {
   return (0)
-    .toLocaleString(locale, { style: 'currency', currency, minimumFractionDigits: 0 })
+    .toLocaleString(locale ?? getLocale(), { style: 'currency', currency, minimumFractionDigits: 0 })
     .replace(/\d/g, '')
     .trim()
 }

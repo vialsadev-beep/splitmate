@@ -80,7 +80,7 @@ export default function RegisterPage() {
           </div>
 
           {register_.error && (
-            <ApiErrorMessage error={register_.error} fallback="Error al registrarse" />
+            <ApiErrorMessage error={register_.error} fallback={t('errors.register')} />
           )}
 
           <button

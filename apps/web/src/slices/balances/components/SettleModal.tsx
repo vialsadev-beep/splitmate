@@ -82,7 +82,7 @@ export function SettleModal({ debt, groupId, currency, onClose }: Props) {
         )}
 
         {settle.error && (
-          <ApiErrorMessage error={settle.error} fallback="Error al registrar el pago" />
+          <ApiErrorMessage error={settle.error} fallback={t('errors.recordPayment')} />
         )}
 
         <div className="flex gap-2">

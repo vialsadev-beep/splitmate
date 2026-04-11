@@ -223,7 +223,7 @@ export default function ProfilePage() {
             {t('profile.paypalFindUsername')}
           </a>
           {updateProfile.error && (
-            <ApiErrorMessage error={updateProfile.error} fallback="Error al guardar" />
+            <ApiErrorMessage error={updateProfile.error} fallback={t('errors.saveFailed')} />
           )}
           <div className="flex gap-2">
             <div className="flex-1 flex items-center rounded-xl border border-input bg-background overflow-hidden">
@@ -290,7 +290,7 @@ export default function ProfilePage() {
                   <p className="text-xs text-destructive">{passwordError}</p>
                 )}
                 {changePassword.error && (
-                  <ApiErrorMessage error={changePassword.error} fallback="Error al cambiar contraseña" />
+                  <ApiErrorMessage error={changePassword.error} fallback={t('errors.changePassword')} />
                 )}
                 {passwordSaved && (
                   <p className="text-xs text-success">{t('profile.passwordChanged')}</p>

@@ -22,7 +22,8 @@
     "copy": "Copy",
     "copied": "Copied!",
     "settings": "Settings",
-    "logout": "Log out"
+    "logout": "Log out",
+    "reload": "Reload"
   },
   "auth": {
     "login": "Log in",
@@ -294,6 +295,14 @@
     "percentageMismatch": "Percentages must add up to 100%",
     "selfPayment": "You can't pay yourself",
     "networkError": "Connection error",
-    "unauthorized": "Session expired, please log in again"
+    "unauthorized": "Session expired, please log in again",
+    "somethingWentWrong": "Something went wrong",
+    "unexpected": "Unexpected error",
+    "saveFailed": "Error saving",
+    "createExpense": "Error creating expense",
+    "editExpense": "Error editing expense",
+    "register": "Error signing up",
+    "recordPayment": "Error recording payment",
+    "changePassword": "Error changing password"
   }
 }

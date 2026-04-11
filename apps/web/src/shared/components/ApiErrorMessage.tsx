@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { getApiError } from '@/shared/lib/api-client'
 
 interface Props {
@@ -5,14 +6,11 @@ interface Props {
   fallback?: string
 }
 
-/**
- * Muestra el mensaje de error de una petición fallida.
- * Para errores 500 incluye el requestId para facilitar el soporte.
- */
-export function ApiErrorMessage({ error, fallback = 'Ha ocurrido un error' }: Props) {
+export function ApiErrorMessage({ error, fallback }: Props) {
+  const { t } = useTranslation()
   if (!error) return null
   const apiError = getApiError(error)
-  const message = apiError?.message ?? fallback
+  const message = apiError?.message ?? fallback ?? t('common.error')
   const requestId = apiError?.requestId
 
   return (

@@ -22,7 +22,8 @@
     "copy": "Copiar",
     "copied": "Copiado",
     "settings": "Ajustes",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "reload": "Recargar"
   },
   "auth": {
     "login": "Iniciar sesión",
@@ -294,6 +295,14 @@
     "percentageMismatch": "Los porcentajes deben sumar 100%",
     "selfPayment": "No puedes pagarte a ti mismo",
     "networkError": "Error de conexión",
-    "unauthorized": "Sesión expirada, inicia sesión de nuevo"
+    "unauthorized": "Sesión expirada, inicia sesión de nuevo",
+    "somethingWentWrong": "Algo salió mal",
+    "unexpected": "Error inesperado",
+    "saveFailed": "Error al guardar",
+    "createExpense": "Error al crear el gasto",
+    "editExpense": "Error al editar el gasto",
+    "register": "Error al registrarse",
+    "recordPayment": "Error al registrar el pago",
+    "changePassword": "Error al cambiar la contraseña"
   }
 }

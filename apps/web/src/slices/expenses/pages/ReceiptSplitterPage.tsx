@@ -264,7 +264,7 @@ export default function ReceiptSplitterPage() {
             </p>
           )}
 
-          {createExpense.error && <ApiErrorMessage error={createExpense.error} fallback="Error al crear el gasto" />}
+          {createExpense.error && <ApiErrorMessage error={createExpense.error} fallback={t('errors.createExpense')} />}
 
           <div className="flex gap-3">
             <button type="button" onClick={() => navigate(-1)} className="flex-1 py-3 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-accent transition-colors">

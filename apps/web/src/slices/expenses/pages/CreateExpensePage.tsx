@@ -256,7 +256,7 @@ export default function CreateExpensePage() {
         </div>
 
         {createExpense.error && (
-          <ApiErrorMessage error={createExpense.error} fallback="Error al crear el gasto" />
+          <ApiErrorMessage error={createExpense.error} fallback={t('errors.createExpense')} />
         )}
 
         <div className="flex gap-3 pt-2">

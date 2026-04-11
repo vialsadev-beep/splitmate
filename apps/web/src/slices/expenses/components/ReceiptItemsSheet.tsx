@@ -215,7 +215,7 @@ export function ReceiptItemsSheet({ expense, groupId, members, onClose }: Props)
             ) : null
           })()}
 
-          {updateItems.error && <ApiErrorMessage error={updateItems.error} fallback="Error al guardar" />}
+          {updateItems.error && <ApiErrorMessage error={updateItems.error} fallback={t('errors.saveFailed')} />}
 
           <button
             type="button"

@@ -281,7 +281,7 @@ export default function EditExpensePage() {
         </div>
 
         {updateExpense.error && (
-          <ApiErrorMessage error={updateExpense.error} fallback="Error al editar el gasto" />
+          <ApiErrorMessage error={updateExpense.error} fallback={t('errors.editExpense')} />
         )}
 
         <div className="flex gap-3 pt-2">

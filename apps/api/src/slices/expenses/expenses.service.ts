@@ -129,6 +129,10 @@ function formatExpense(
     notes: expense.notes,
     receiptUrl: expense.receiptUrl ?? null,
     receiptItems: (expense.receiptItems as ReceiptItem[] | null) ?? null,
+    isPrivate: expense.isPrivate,
+    canView: !expense.isPrivate ||
+      expense.payerId === requesterId ||
+      expense.splits.some((s) => s.userId === requesterId),
     date: expense.date.toISOString(),
     createdAt: expense.createdAt.toISOString(),
   }
@@ -211,6 +215,7 @@ export const expensesService = {
       date: input.date ? new Date(input.date) : undefined,
       splits,
       receiptItems: (input as CreateExpenseInput & { receiptItems?: ReceiptItem[] }).receiptItems ?? null,
+      isPrivate: (input as CreateExpenseInput & { isPrivate?: boolean }).isPrivate ?? false,
     })
 
     // Balances cambian → invalidar caché + comprobar límite de deuda
@@ -324,6 +329,7 @@ export const expensesService = {
       ...(input.amount !== undefined && { amount: toDecimal(input.amount) }),
       ...(input.payerId !== undefined && { payerId: input.payerId }),
       ...(input.splitType !== undefined && { splitType: input.splitType }),
+      ...((input as UpdateExpenseInput & { isPrivate?: boolean }).isPrivate !== undefined && { isPrivate: (input as UpdateExpenseInput & { isPrivate?: boolean }).isPrivate }),
       ...(splitsToUpdate && { splits: splitsToUpdate }),
     })
 

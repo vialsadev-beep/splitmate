@@ -25,6 +25,7 @@ export const CreateExpenseSchema = z
     splitType: SplitTypeSchema,
     categoryId: z.string().optional(),
     notes: z.string().max(500).optional(),
+    isPrivate: z.boolean().optional(),
     date: z.string().datetime().optional(),
     // Para EQUAL: lista de participantes (opcional, default: todos los miembros)
     participantIds: z.array(z.string()).min(1).optional(),
@@ -52,6 +53,7 @@ export const UpdateExpenseSchema = z
     title: z.string().min(1).max(100).optional(),
     categoryId: z.string().nullable().optional(),
     notes: z.string().max(500).nullable().optional(),
+    isPrivate: z.boolean().optional(),
     date: z.string().datetime().optional(),
     // Campos estructurales (cuando cambia alguno, se recalculan todos los splits)
     amount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Formato de monto inválido').optional(),
@@ -118,6 +120,8 @@ export const ExpenseResponseSchema = z.object({
   notes: z.string().nullable(),
   receiptUrl: z.string().nullable(),
   receiptItems: z.array(ReceiptItemSchema).nullable(),
+  isPrivate: z.boolean(),
+  canView: z.boolean(),
   date: z.string(),
   createdAt: z.string(),
 })

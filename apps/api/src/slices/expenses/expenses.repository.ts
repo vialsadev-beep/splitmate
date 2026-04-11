@@ -50,6 +50,7 @@ export const expensesRepository = {
     date?: Date
     splits: { userId: string; amount: Prisma.Decimal | string; isPaid: boolean }[]
     receiptItems?: unknown
+    isPrivate?: boolean
   }) {
     return prisma.expense.create({
       data: {
@@ -64,6 +65,7 @@ export const expensesRepository = {
         date: data.date ?? new Date(),
         splits: { create: data.splits },
         ...(data.receiptItems !== undefined && data.receiptItems !== null ? { receiptItems: data.receiptItems as Prisma.InputJsonValue } : {}),
+        ...(data.isPrivate !== undefined ? { isPrivate: data.isPrivate } : {}),
       },
       include: expenseInclude,
     })
@@ -79,6 +81,7 @@ export const expensesRepository = {
     splitType?: 'EQUAL' | 'EXACT' | 'PERCENTAGE' | 'SHARES'
     splits?: { userId: string; amount: Prisma.Decimal | string; isPaid: boolean }[]
     receiptItems?: unknown
+    isPrivate?: boolean
   }) {
     const { splits, receiptItems, ...expenseData } = data
 

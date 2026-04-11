@@ -105,7 +105,12 @@
     "attachReceipt": "Attach receipt",
     "notFound": "Expense not found",
     "descriptionPlaceholder": "Dinner, taxi, groceries...",
-    "notesPlaceholder": "Add a note..."
+    "notesPlaceholder": "Add a note...",
+    "private": "Private expense",
+    "makePrivate": "Make private",
+    "privateTooltip": "This expense will only be visible to assigned members. Others will see it exists but not the details.",
+    "privateBanner": "Only assigned members will be able to see the details of this expense.",
+    "privateHidden": "Private expense · No access"
   },
   "balances": {
     "title": "Balance",

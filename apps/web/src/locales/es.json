@@ -105,7 +105,12 @@
     "attachReceipt": "Adjuntar ticket",
     "notFound": "Gasto no encontrado",
     "descriptionPlaceholder": "Cena, taxi, supermercado...",
-    "notesPlaceholder": "Añade una nota..."
+    "notesPlaceholder": "Añade una nota...",
+    "private": "Gasto privado",
+    "makePrivate": "Hacer privado",
+    "privateTooltip": "Este gasto solo será visible para las personas asignadas. El resto verá que existe pero no podrá ver los detalles.",
+    "privateBanner": "Solo las personas asignadas podrán ver los detalles de este gasto.",
+    "privateHidden": "Gasto privado · No tienes acceso"
   },
   "balances": {
     "title": "Balance",

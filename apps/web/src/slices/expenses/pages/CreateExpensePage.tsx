@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ShieldAlert } from 'lucide-react'
 import { CreateExpenseSchema, type CreateExpenseInput } from '@splitmate/shared'
 import { useCreateExpense } from '../api/expenses.queries'
 import { useGroup } from '@/slices/groups/api/groups.queries'
@@ -19,6 +20,8 @@ export default function CreateExpensePage() {
   const { user } = useAuth()
   const { data: group } = useGroup(groupId!)
   const createExpense = useCreateExpense(groupId!)
+  const [isPrivate, setIsPrivate] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const { register, handleSubmit, control, setValue, watch, formState: { errors } } =
     useForm<CreateExpenseInput>({
@@ -34,7 +37,6 @@ export default function CreateExpensePage() {
   const splitType = useWatch({ control, name: 'splitType' })
   const members = group?.members ?? []
 
-  // Cuando el grupo carga, inicializar participantIds con todos los miembros
   useEffect(() => {
     if (group?.members && group.members.length > 0) {
       setValue('participantIds', group.members.map((m) => m.userId))
@@ -43,7 +45,10 @@ export default function CreateExpensePage() {
 
   async function onSubmit(data: CreateExpenseInput) {
     try {
-      await createExpense.mutateAsync(data)
+      await (createExpense.mutateAsync as (d: CreateExpenseInput & { isPrivate?: boolean }) => Promise<unknown>)({
+        ...data,
+        isPrivate,
+      })
       navigate(-1)
     } catch {
       // error handled below
@@ -57,10 +62,55 @@ export default function CreateExpensePage() {
 
   return (
     <div className="space-y-5 pb-8">
-      <div>
-        <h2 className="text-xl font-bold text-foreground">{t('expenses.add')}</h2>
-        {group && <p className="text-sm text-muted-foreground mt-1">{group.name}</p>}
+      {/* Header con botón de gasto privado */}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-foreground">{t('expenses.add')}</h2>
+          {group && <p className="text-sm text-muted-foreground mt-1">{group.name}</p>}
+        </div>
+
+        {/* Toggle gasto privado */}
+        <div className="relative flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsPrivate((v) => !v)}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            onTouchStart={() => setShowTooltip(true)}
+            onTouchEnd={() => setTimeout(() => setShowTooltip(false), 1800)}
+            className={cn(
+              'flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all',
+              isPrivate
+                ? 'border-violet-400 bg-violet-500/10 text-violet-600 dark:text-violet-400'
+                : 'border-border text-muted-foreground hover:border-violet-400/60 hover:text-violet-500',
+            )}
+          >
+            <ShieldAlert className="h-3.5 w-3.5" />
+            {isPrivate ? t('expenses.private') : t('expenses.makePrivate')}
+          </button>
+
+          {/* Tooltip */}
+          {showTooltip && (
+            <div className="absolute right-0 top-full mt-2 w-56 z-50 pointer-events-none">
+              <div className="bg-popover border border-border rounded-xl shadow-lg p-3">
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {t('expenses.privateTooltip')}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Banner cuando está en modo privado */}
+      {isPrivate && (
+        <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-violet-500/10 border border-violet-400/30">
+          <ShieldAlert className="h-4 w-4 text-violet-500 flex-shrink-0" />
+          <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
+            {t('expenses.privateBanner')}
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Descripción */}
@@ -98,10 +148,7 @@ export default function CreateExpensePage() {
         {/* Pagado por */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">{t('expenses.paidBy')}</label>
-          <select
-            {...register('payerId')}
-            className={inputClass}
-          >
+          <select {...register('payerId')} className={inputClass}>
             {members.map((m) => (
               <option key={m.userId} value={m.userId}>
                 {m.userId === user?.id ? `${m.name} (${t('groups.you')})` : m.name}
@@ -137,7 +184,6 @@ export default function CreateExpensePage() {
           </div>
         </div>
 
-        {/* Split selector dinámico */}
         <SplitSelector
           splitType={splitType}
           members={members}

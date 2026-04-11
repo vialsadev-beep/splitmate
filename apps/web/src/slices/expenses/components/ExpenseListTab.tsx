@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Search, X, Download } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { useExpenses } from '../api/expenses.queries'
+import { useExpenses, useCategories } from '../api/expenses.queries'
 import { apiClient } from '@/shared/lib/api-client'
 import { ExpenseCard } from './ExpenseCard'
 import { EmptyState } from '@/shared/components/EmptyState'
@@ -20,23 +20,27 @@ interface Props {
 export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [] }: Props) {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
+  const [categoryId, setCategoryId] = useState<string | undefined>(undefined)
   const [page, setPage] = useState(1)
   const [allExpenses, setAllExpenses] = useState<ExpenseResponse[]>([])
   const [hasMore, setHasMore] = useState(true)
   const debouncedSearch = useDebounce(search, 300)
 
+  const { data: categories = [] } = useCategories(groupId)
+
   const { data, isLoading, isFetching } = useExpenses(groupId, {
     search: debouncedSearch || undefined,
+    categoryId,
     page,
   })
 
-  // Merge pages into allExpenses
   const pageExpenses = data?.data ?? []
 
-  // On search change, reset
-  const [lastSearch, setLastSearch] = useState(debouncedSearch)
-  if (debouncedSearch !== lastSearch) {
-    setLastSearch(debouncedSearch)
+  // Reset on filter change
+  const [lastFilter, setLastFilter] = useState(`${debouncedSearch}|${categoryId}`)
+  const currentFilter = `${debouncedSearch}|${categoryId}`
+  if (currentFilter !== lastFilter) {
+    setLastFilter(currentFilter)
     setPage(1)
     setAllExpenses([])
     setHasMore(true)
@@ -60,7 +64,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
     }
   }
 
-  // Handle page 1 reset when search changes
+  // Handle page 1 reset when filter changes
   if (page === 1 && !isFetching && lastPage === page && pageExpenses.length > 0 && allExpenses[0]?.id !== pageExpenses[0]?.id) {
     setAllExpenses(pageExpenses)
   }
@@ -68,6 +72,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
   async function handleExport() {
     const qs = new URLSearchParams()
     if (debouncedSearch) qs.set('search', debouncedSearch)
+    if (categoryId) qs.set('categoryId', categoryId)
     const res = await apiClient.get(`/groups/${groupId}/expenses/export?${qs}`, {
       responseType: 'blob',
     })
@@ -80,43 +85,75 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
   }
 
   const expenses = allExpenses.length > 0 ? allExpenses : (page === 1 ? pageExpenses : [])
-  const isFiltering = !!debouncedSearch
+  const isFiltering = !!debouncedSearch || !!categoryId
   const totalCount = data?.meta?.total ?? 0
 
   return (
     <div className="space-y-3">
       {/* Barra de búsqueda + exportar */}
       <div className="flex gap-2">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('expenses.searchPlaceholder')}
-          className={cn(
-            'w-full pl-9 pr-9 py-2.5 rounded-xl border border-input bg-background',
-            'text-sm text-foreground placeholder:text-muted-foreground',
-            'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors',
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('expenses.searchPlaceholder')}
+            className={cn(
+              'w-full pl-9 pr-9 py-2.5 rounded-xl border border-input bg-background',
+              'text-sm text-foreground placeholder:text-muted-foreground',
+              'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors',
+            )}
+          />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           )}
-        />
-        {search && (
+        </div>
+        <button
+          onClick={handleExport}
+          title={t('expenses.export')}
+          className="p-2.5 rounded-xl border border-input bg-background text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex-shrink-0"
+        >
+          <Download className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Filtros por categoría */}
+      {categories.length > 0 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
           <button
-            onClick={() => setSearch('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setCategoryId(undefined)}
+            className={cn(
+              'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors border',
+              !categoryId
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30',
+            )}
           >
-            <X className="h-3.5 w-3.5" />
+            {t('budgets.allCategories')}
           </button>
-        )}
-      </div>
-      <button
-        onClick={handleExport}
-        title={t('expenses.export')}
-        className="p-2.5 rounded-xl border border-input bg-background text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex-shrink-0"
-      >
-        <Download className="h-4 w-4" />
-      </button>
-      </div>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoryId(categoryId === cat.id ? undefined : cat.id)}
+              className={cn(
+                'flex-shrink-0 flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium transition-colors border',
+                categoryId === cat.id
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30',
+              )}
+            >
+              {cat.emoji && <span>{cat.emoji}</span>}
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Lista */}
       {isLoading && page === 1 ? (
@@ -129,7 +166,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
             <p className="text-2xl">🔍</p>
             <p className="text-sm font-medium text-foreground">{t('expenses.searchEmpty')}</p>
             <p className="text-xs text-muted-foreground">
-              {t('expenses.searchEmptyDesc', { query: debouncedSearch })}
+              {t('expenses.searchEmptyDesc', { query: debouncedSearch || categories.find(c => c.id === categoryId)?.name })}
             </p>
           </div>
         ) : (
@@ -145,7 +182,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
             <ExpenseCard key={expense.id} expense={expense} groupId={groupId} currency={currency} isAdmin={isAdmin} members={members} />
           ))}
 
-          {/* Load more / counter */}
+          {/* Load more */}
           {totalCount > expenses.length && hasMore ? (
             <button
               onClick={() => setPage((p) => p + 1)}
@@ -161,7 +198,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
                 t('expenses.showingOf', { count: expenses.length, total: totalCount })
               )}
             </button>
-          ) : totalCount > 0 && expenses.length >= totalCount ? null : null}
+          ) : null}
         </div>
       )}
     </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Receipt, CreditCard, Trash2 } from 'lucide-react'
 import { useActivityFeed } from '../api/activity.queries'
@@ -71,17 +72,34 @@ function ActivityRow({ item, currency }: { item: ActivityItem; currency: string 
 
 export function ActivityFeedTab({ groupId }: Props) {
   const { t } = useTranslation()
-  const { data, isLoading } = useActivityFeed(groupId)
+  const [page, setPage] = useState(1)
+  const [allItems, setAllItems] = useState<ActivityItem[]>([])
+  const { data, isLoading, isFetching } = useActivityFeed(groupId, page)
 
-  if (isLoading) {
+  const pageItems = data?.data ?? []
+  const [lastPage, setLastPage] = useState(0)
+  if (page !== lastPage && !isFetching && pageItems.length > 0) {
+    setLastPage(page)
+    if (page === 1) {
+      setAllItems(pageItems)
+    } else {
+      setAllItems((prev) => {
+        const existingIds = new Set(prev.map((i) => i.id))
+        return [...prev, ...pageItems.filter((i) => !existingIds.has(i.id))]
+      })
+    }
+  }
+
+  const items = allItems.length > 0 ? allItems : (page === 1 ? pageItems : [])
+  const totalCount = data?.meta?.total ?? 0
+
+  if (isLoading && page === 1) {
     return (
       <div className="flex justify-center py-16">
         <LoadingSpinner />
       </div>
     )
   }
-
-  const items = data?.data ?? []
 
   if (items.length === 0) {
     return (
@@ -107,7 +125,6 @@ export function ActivityFeedTab({ groupId }: Props) {
     <div className="space-y-4 pb-6">
       {Array.from(grouped.entries()).map(([day, dayItems]) => (
         <div key={day} className="space-y-1">
-          {/* Separador de fecha */}
           <div className="flex items-center gap-2 py-1">
             <div className="flex-1 h-px bg-border" />
             <span className="text-xs text-muted-foreground font-medium">
@@ -116,7 +133,6 @@ export function ActivityFeedTab({ groupId }: Props) {
             <div className="flex-1 h-px bg-border" />
           </div>
 
-          {/* Items del día */}
           <div className="rounded-xl bg-card border border-border divide-y divide-border">
             {dayItems.map((item) => (
               <div key={item.id} className="px-3.5 py-3">
@@ -126,6 +142,23 @@ export function ActivityFeedTab({ groupId }: Props) {
           </div>
         </div>
       ))}
+
+      {totalCount > items.length && (
+        <button
+          onClick={() => setPage((p) => p + 1)}
+          disabled={isFetching}
+          className="w-full py-2.5 rounded-xl border border-border text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-50"
+        >
+          {isFetching ? (
+            <span className="flex items-center justify-center gap-2">
+              <LoadingSpinner size="sm" />
+              {t('common.loading')}
+            </span>
+          ) : (
+            t('expenses.showingOf', { count: items.length, total: totalCount })
+          )}
+        </button>
+      )}
     </div>
   )
 }

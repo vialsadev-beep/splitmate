@@ -86,9 +86,20 @@ export const paymentsService = {
       },
     })
 
-    // Balances cambian → invalidar caché + comprobar límite de deuda
+    // Balances cambian → invalidar caché + comprobar límite de deuda + notificar
     await balancesService.invalidateCache(groupId)
     void checkDebtLimitNotifications(groupId)
+
+    // Notificar al receptor del pago
+    void prisma.notification.create({
+      data: {
+        userId: input.receiverId,
+        type: 'PAYMENT_RECEIVED',
+        title: `${payment.sender.name} te ha pagado`,
+        body: `${new Decimal(input.amount).toFixed(2)} ${group.currency}${input.notes ? ` — ${input.notes}` : ''}`,
+        data: { groupId },
+      },
+    })
 
     return formatPayment(payment)
   },

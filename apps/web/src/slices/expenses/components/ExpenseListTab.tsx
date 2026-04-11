@@ -8,6 +8,7 @@ import { EmptyState } from '@/shared/components/EmptyState'
 import { LoadingSpinner } from '@/shared/components/LoadingSpinner'
 import { useDebounce } from '@/shared/hooks/useDebounce'
 import { cn } from '@/shared/utils/cn'
+import type { ExpenseResponse } from '@splitmate/shared'
 
 interface Props {
   groupId: string
@@ -19,11 +20,50 @@ interface Props {
 export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [] }: Props) {
   const { t } = useTranslation()
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [allExpenses, setAllExpenses] = useState<ExpenseResponse[]>([])
+  const [hasMore, setHasMore] = useState(true)
   const debouncedSearch = useDebounce(search, 300)
 
   const { data, isLoading, isFetching } = useExpenses(groupId, {
     search: debouncedSearch || undefined,
+    page,
   })
+
+  // Merge pages into allExpenses
+  const pageExpenses = data?.data ?? []
+
+  // On search change, reset
+  const [lastSearch, setLastSearch] = useState(debouncedSearch)
+  if (debouncedSearch !== lastSearch) {
+    setLastSearch(debouncedSearch)
+    setPage(1)
+    setAllExpenses([])
+    setHasMore(true)
+  }
+
+  // Merge page data
+  const [lastPage, setLastPage] = useState(0)
+  if (page !== lastPage && !isFetching && pageExpenses.length > 0) {
+    setLastPage(page)
+    if (page === 1) {
+      setAllExpenses(pageExpenses)
+    } else {
+      setAllExpenses((prev) => {
+        const existingIds = new Set(prev.map((e) => e.id))
+        const newExpenses = pageExpenses.filter((e) => !existingIds.has(e.id))
+        return [...prev, ...newExpenses]
+      })
+    }
+    if (data?.meta && pageExpenses.length < data.meta.limit) {
+      setHasMore(false)
+    }
+  }
+
+  // Handle page 1 reset when search changes
+  if (page === 1 && !isFetching && lastPage === page && pageExpenses.length > 0 && allExpenses[0]?.id !== pageExpenses[0]?.id) {
+    setAllExpenses(pageExpenses)
+  }
 
   async function handleExport() {
     const qs = new URLSearchParams()
@@ -39,8 +79,9 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
     URL.revokeObjectURL(url)
   }
 
-  const expenses = data?.data ?? []
+  const expenses = allExpenses.length > 0 ? allExpenses : (page === 1 ? pageExpenses : [])
   const isFiltering = !!debouncedSearch
+  const totalCount = data?.meta?.total ?? 0
 
   return (
     <div className="space-y-3">
@@ -78,7 +119,7 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
       </div>
 
       {/* Lista */}
-      {isLoading ? (
+      {isLoading && page === 1 ? (
         <div className="flex justify-center py-10">
           <LoadingSpinner />
         </div>
@@ -99,15 +140,28 @@ export function ExpenseListTab({ groupId, currency, isAdmin = false, members = [
           />
         )
       ) : (
-        <div className={cn('space-y-2 transition-opacity', isFetching && 'opacity-60')}>
+        <div className={cn('space-y-2 transition-opacity', isFetching && page === 1 && 'opacity-60')}>
           {expenses.map((expense) => (
             <ExpenseCard key={expense.id} expense={expense} groupId={groupId} currency={currency} isAdmin={isAdmin} members={members} />
           ))}
-          {data?.meta && data.meta.total > expenses.length && (
-            <p className="text-center text-xs text-muted-foreground py-2">
-              {t('expenses.showingOf', { count: expenses.length, total: data.meta.total })}
-            </p>
-          )}
+
+          {/* Load more / counter */}
+          {totalCount > expenses.length && hasMore ? (
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              disabled={isFetching}
+              className="w-full py-2.5 rounded-xl border border-border text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-50"
+            >
+              {isFetching ? (
+                <span className="flex items-center justify-center gap-2">
+                  <LoadingSpinner size="sm" />
+                  {t('common.loading')}
+                </span>
+              ) : (
+                t('expenses.showingOf', { count: expenses.length, total: totalCount })
+              )}
+            </button>
+          ) : totalCount > 0 && expenses.length >= totalCount ? null : null}
         </div>
       )}
     </div>

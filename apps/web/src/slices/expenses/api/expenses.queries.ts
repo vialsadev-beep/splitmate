@@ -31,14 +31,15 @@ export const expenseKeys = {
   detail: (groupId: string, expenseId: string) => ['expenses', groupId, expenseId] as const,
 }
 
-export function useExpenses(groupId: string, params?: { search?: string; categoryId?: string; payerId?: string }) {
+export function useExpenses(groupId: string, params?: { search?: string; categoryId?: string; payerId?: string; page?: number }) {
   return useQuery({
     queryKey: expenseKeys.list(groupId, params as Record<string, string>),
     queryFn: async () => {
-      const qs = new URLSearchParams({ limit: '50' })
+      const qs = new URLSearchParams({ limit: '30' })
       if (params?.search) qs.set('search', params.search)
       if (params?.categoryId) qs.set('categoryId', params.categoryId)
       if (params?.payerId) qs.set('payerId', params.payerId)
+      if (params?.page) qs.set('page', String(params.page))
       const res = await apiClient.get<PaginatedExpenses>(`/groups/${groupId}/expenses?${qs}`)
       return res.data
     },

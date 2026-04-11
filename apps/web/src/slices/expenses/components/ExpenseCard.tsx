@@ -142,7 +142,7 @@ export function ExpenseCard({ expense, groupId, currency, isAdmin = false, membe
           </div>
 
           {canEdit && (
-            <div className="opacity-0 group-hover:opacity-100 flex gap-0.5 transition-all">
+            <div className="flex gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
               <button
                 onClick={() => receiptInputRef.current?.click()}
                 disabled={uploadReceipt.isPending}

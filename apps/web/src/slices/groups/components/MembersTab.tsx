@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Camera, Shield } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Camera, Shield, LogOut } from 'lucide-react'
 import { useAuth } from '@/shared/hooks/useAuth'
 import { cn } from '@/shared/utils/cn'
-import { useUpdateGroup, useUploadGroupAvatar } from '../api/groups.queries'
+import { useUpdateGroup, useUploadGroupAvatar, useLeaveGroup } from '../api/groups.queries'
 import { ApiErrorMessage } from '@/shared/components/ApiErrorMessage'
 import type { GroupResponse } from '@splitmate/shared'
 
@@ -14,16 +15,32 @@ interface Props {
 export function MembersTab({ group }: Props) {
   const { t } = useTranslation()
   const { user } = useAuth()
+  const navigate = useNavigate()
   const isAdmin = group.members.find((m) => m.userId === user?.id)?.role === 'ADMIN'
 
   const updateGroup = useUpdateGroup(group.id)
   const uploadAvatar = useUploadGroupAvatar(group.id)
+  const leaveGroup = useLeaveGroup(group.id)
   const avatarInputRef = useRef<HTMLInputElement>(null)
 
   const [debtLimit, setDebtLimit] = useState(group.debtLimit ?? '')
   const [debtLimitSaved, setDebtLimitSaved] = useState(false)
   const [avatarError, setAvatarError] = useState<unknown>(null)
   const [debtLimitError, setDebtLimitError] = useState<unknown>(null)
+  const [leaveError, setLeaveError] = useState<unknown>(null)
+  const [confirmLeave, setConfirmLeave] = useState(false)
+
+  async function handleLeaveGroup() {
+    if (!confirmLeave) { setConfirmLeave(true); return }
+    setLeaveError(null)
+    try {
+      await leaveGroup.mutateAsync()
+      navigate('/groups', { replace: true })
+    } catch (e) {
+      setLeaveError(e)
+      setConfirmLeave(false)
+    }
+  }
 
   async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -172,6 +189,33 @@ export function MembersTab({ group }: Props) {
             </span>
           </div>
         ))}
+      </div>
+
+      {/* Salir del grupo */}
+      <div className="pt-2 border-t border-border">
+        <ApiErrorMessage error={leaveError} />
+        <button
+          onClick={handleLeaveGroup}
+          disabled={leaveGroup.isPending}
+          className={cn(
+            'w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-medium transition-all',
+            confirmLeave
+              ? 'bg-destructive text-destructive-foreground'
+              : 'text-destructive border border-destructive/30 hover:bg-destructive/10',
+            leaveGroup.isPending && 'opacity-50',
+          )}
+        >
+          <LogOut className="h-4 w-4" />
+          {confirmLeave ? t('groups.leaveConfirm') : t('groups.leaveGroup')}
+        </button>
+        {confirmLeave && (
+          <button
+            onClick={() => setConfirmLeave(false)}
+            className="w-full text-xs text-muted-foreground py-1.5 hover:text-foreground transition-colors"
+          >
+            {t('common.cancel')}
+          </button>
+        )}
       </div>
     </div>
   )

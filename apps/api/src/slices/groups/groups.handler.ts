@@ -32,6 +32,11 @@ export const groupsHandler = {
     res.json({ data: group })
   },
 
+  async leaveGroup(req: Request, res: Response) {
+    await groupsService.removeMember(req.params.groupId, req.user!.userId, req.user!.userId)
+    res.json({ data: { message: 'Has salido del grupo' } })
+  },
+
   async removeMember(req: Request, res: Response) {
     await groupsService.removeMember(req.params.groupId, req.params.userId, req.user!.userId)
     res.json({ data: { message: 'Miembro eliminado del grupo' } })

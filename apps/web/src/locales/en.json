@@ -75,7 +75,9 @@
     "subtitle": "Set up your group details",
     "inviteDesc": "Share this link so others can join «{{name}}».",
     "memberCount_one": "{{count}} member",
-    "memberCount_other": "{{count}} members"
+    "memberCount_other": "{{count}} members",
+    "leaveGroup": "Leave group",
+    "leaveConfirm": "Are you sure you want to leave?"
   },
   "expenses": {
     "title": "Expenses",

@@ -75,7 +75,9 @@
     "subtitle": "Configura los datos del grupo",
     "inviteDesc": "Comparte este link para que otros puedan unirse a «{{name}}».",
     "memberCount_one": "{{count}} miembro",
-    "memberCount_other": "{{count}} miembros"
+    "memberCount_other": "{{count}} miembros",
+    "leaveGroup": "Salir del grupo",
+    "leaveConfirm": "¿Seguro que quieres salir?"
   },
   "expenses": {
     "title": "Gastos",

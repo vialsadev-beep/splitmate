@@ -37,5 +37,7 @@ groupsRouter.post(
 
 // ─── Miembros ─────────────────────────────────────────────────
 groupsRouter.post('/:groupId/invite/regenerate', requireGroupAdmin, groupsHandler.regenerateInviteCode)
+// Salir del grupo (cualquier miembro puede salir)
+groupsRouter.delete('/:groupId/members/me', requireGroupMember, groupsHandler.leaveGroup)
 groupsRouter.delete('/:groupId/members/:userId', requireGroupAdmin, groupsHandler.removeMember)
 groupsRouter.patch('/:groupId/members/:userId', requireGroupAdmin, validate(UpdateMemberRoleSchema), groupsHandler.updateMemberRole)
